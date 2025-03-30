@@ -5,8 +5,6 @@ interface SchoolInfo {
     room: number;
     edu_office_code: string;
     standard_school_code: string;
-    department?: string;
-    major?: string;
 
 }
 

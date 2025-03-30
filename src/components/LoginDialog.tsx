@@ -1,9 +1,17 @@
-import { Button, Dialog, Flex, Link, Text, TextField } from "@radix-ui/themes";
+import { Button, Dialog, Flex, Text, TextField } from "@radix-ui/themes";
 import { useRef, useState } from "react";
 import '../animation.css';
-import RegisterDialog from "./RegisterDialog";
 
-const LoginDialog = () => {
+
+interface LoginDialogProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onSwitchToRegister: () => void;
+}
+
+
+
+const LoginDialog = ({ open, onOpenChange, onSwitchToRegister }: LoginDialogProps) => {
     const emailRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
     const [error, setError] = useState(false);
@@ -22,7 +30,7 @@ const LoginDialog = () => {
             return;
         }
 
-        const response = await fetch("http://127.0.0.1:8000/api/user/login", {
+        const response = await fetch("http://localhost:8000/api/user/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -31,6 +39,7 @@ const LoginDialog = () => {
                 email: email,
                 password: password,
             }),
+            credentials: "include",
         });
         const body = await response.json();
 
@@ -54,11 +63,7 @@ const LoginDialog = () => {
     }
 
     return (
-        <Dialog.Root>
-            <Dialog.Trigger>
-                <Button>로그인 하여 알아보기</Button>
-            </Dialog.Trigger>
-
+        <Dialog.Root open={open} onOpenChange={onOpenChange}>
             <Dialog.Content maxWidth="450px">
                 <Dialog.Title>로그인</Dialog.Title>
                 <Dialog.Description
@@ -95,7 +100,23 @@ const LoginDialog = () => {
                 </Flex>
 
                 <Flex gap="3" mt="4" justify="end">
-                    <RegisterDialog />
+                    <Text
+                        size="1"
+                        weight="bold"
+                        color="gray"
+                        style={
+                            {
+                                alignSelf: 'center',
+                                cursor: 'pointer',
+                                textDecoration: 'underline',
+                                flex: "1"
+                            }
+                        }
+                        onClick={() => {
+                            onSwitchToRegister()
+                            handleClose()
+                        }}
+                    >회원가입</Text>
 
                     <Dialog.Close>
                         <Button variant="soft" color="gray"

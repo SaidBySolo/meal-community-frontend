@@ -1,6 +1,11 @@
 import { Box, Button, Flex } from "@radix-ui/themes"
 import LoginDialog from "./LoginDialog"
 
+import { useState } from "react";
+import RegisterDialog from "./RegisterDialog";
+import CombinedDialogs from "./CombinedDialogs";
+
+
 
 const MainPage = () => {
     return (
@@ -20,7 +25,7 @@ const MainPage = () => {
                 <img src="../public/meal.png" alt="meal" width={300} height={300} />
                 <h1>오늘의 급식은?</h1>
 
-                <LoginDialog />
+                <CombinedDialogs />
             </Flex>
         </Box>
 
