@@ -465,7 +465,7 @@
     "@radix-ui/react-primitive" "2.0.2"
     "@radix-ui/react-use-callback-ref" "1.1.0"
 
-"@radix-ui/react-form@0.1.2":
+"@radix-ui/react-form@0.1.2", "@radix-ui/react-form@^0.1.2":
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/@radix-ui/react-form/-/react-form-0.1.2.tgz#1aa26d073d73d4f9bbd0ca73cdd9db1b1d382a94"
   integrity sha512-Owj1MjLq6/Rp85bgzYI+zRK5APLiWDtXDM63Z39FW15bNdehrcS+FjQgLGQYswFzipYu4GAA+t5w/VqvvNZ3ag==

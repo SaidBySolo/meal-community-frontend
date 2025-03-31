@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import '../animation.css';
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { PartialSchoolInfo } from "../types";
+import { API_URL } from "../constant";
 
 interface SearchSchoolDialogProps {
     open: boolean;
@@ -35,15 +36,17 @@ const SearchResultItem = ({ value, name, street_name_address }: SearchResultItem
 }
 
 const SearchSchoolDialog = ({ open, onOpenChange, setPartialSchoolInfo }: SearchSchoolDialogProps) => {
-    const inputRef = useRef<HTMLInputElement>(null);
+    const [input, setInput] = useState("");
     const [value, setValue] = useState("0");
     const [isFound, setIsFound] = useState(false);
     const [setSchools, setSetSchools] = useState<School[]>([]);
     const [errMessage, setErrMessage] = useState<string>("");
 
+    
+
 
     const searchSchool = async (schoolName: string) => {
-        const response = await fetch(`http://localhost:8000/api/school/search`, {
+        const response = await fetch(API_URL + '/api/school/search', {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -87,11 +90,20 @@ const SearchSchoolDialog = ({ open, onOpenChange, setPartialSchoolInfo }: Search
                                     flexDirection: "row-reverse"
                                 }
                             }
-                            ref={inputRef}
+                            onChange={(e) => {
+                                setInput(e.target.value);
+                                setErrMessage("");
+                            }}
+                            onKeyUp={(e) => {
+                                if (e.key === "Enter") {
+                                    searchSchool(input);
+                                }
+                            }
+                            }
                         >
                             <TextField.Slot >
                                 <MagnifyingGlassIcon height="16" width="16"
-                                    onClick={() => searchSchool(inputRef.current?.value ?? "")}
+                                    onClick={() => searchSchool(input ?? "")}
                                     style={{
                                         cursor: "pointer",
                                     }} />
@@ -100,17 +112,20 @@ const SearchSchoolDialog = ({ open, onOpenChange, setPartialSchoolInfo }: Search
 
                     </label>
                     <ScrollArea scrollbars="vertical" style={{ height: 180 }}>
+
                         <RadioCards.Root
-                            defaultValue="0"
                             columns={{ initial: "1", sm: "1" }}
                             onValueChange={setValue}
                             style={{
-                                justifyItems: "center"
+                                justifyItems: "center",
+                                height: "100%",
+                                alignContent: "center",
                             }}
                         >
+
                             {
                                 isFound ? setSchools.map((school, index) => (
-                                    <SearchResultItem value={index.toString()} name={school.name} street_name_address={school.street_name_address} />
+                                    <SearchResultItem value={index.toString()} key={index} name={school.name} street_name_address={school.street_name_address} />
                                 )) : errMessage ? <Text color="red">{errMessage}</Text> : <Text>학교를 검색해주세요</Text>
                             }
 

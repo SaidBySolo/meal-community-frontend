@@ -11,7 +11,7 @@ const MainPage = () => {
     return (
         <Box
             style={{
-                height: '100vh',
+                height: "100vh",
             }}
         >
             <Flex

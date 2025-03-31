@@ -1,3 +1,4 @@
+
 interface PartialSchoolInfo {
     name: string;
     edu_office_code: string;
