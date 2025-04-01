@@ -3,6 +3,8 @@ import { FormEvent, useRef, useState } from "react";
 import '../animation.css';
 import { Form } from "radix-ui"
 import { API_URL } from "../constant";
+import PasswordFormField from "./Form/Password";
+import EmailFormField from "./Form/Email";
 
 
 interface LoginDialogProps {
@@ -16,7 +18,7 @@ const LoginDialog = ({ open, onOpenChange, onSwitchToRegister }: LoginDialogProp
     const [error, setError] = useState(false);
     const [errMessage, setErrMessage] = useState('');
     const [errorKey, setErrorKey] = useState(0)
-    const [email, setEmail] = useState('');
+
 
     const submit = (formData: FormData) => {
         const email = formData.get('email') as string;
@@ -26,8 +28,6 @@ const LoginDialog = ({ open, onOpenChange, onSwitchToRegister }: LoginDialogProp
     }
 
     const requestLogin = async (email: string, password: string) => {
-        setEmail(email);
-
         const response = await fetch(API_URL + "/api/user/login", {
             method: "POST",
             headers: {
@@ -44,7 +44,6 @@ const LoginDialog = ({ open, onOpenChange, onSwitchToRegister }: LoginDialogProp
         if (response.status === 200) {
             setError(false);
             setErrMessage('');
-            setEmail('')
             localStorage.setItem('access_token', body.access_token);
             window.location.href = '/';
         } else {
@@ -59,11 +58,8 @@ const LoginDialog = ({ open, onOpenChange, onSwitchToRegister }: LoginDialogProp
         setError(false);
         setErrMessage('');
         setErrorKey(0);
-        setEmail('')
     }
-    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setEmail(e.target.value);
-    }
+
 
     return (
         <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -82,73 +78,8 @@ const LoginDialog = ({ open, onOpenChange, onSwitchToRegister }: LoginDialogProp
 
                 <Form.Root className="FormRoot" action={submit} >
                     <Flex direction="column" gap="3">
-                        <Form.Field
-                            className="FormField"
-                            name="email"
-                        >
-                            <Flex direction="column">
-                                <Flex justify="between" align={"center"}>
-                                    <Form.Label className="rt-Text rt-r-size-2 rt-r-weight-bold rt-r-mb-1">
-                                        이메일
-                                    </Form.Label>
-                                    <Form.Message
-                                        className="rt-Text rt-r-size-1"
-                                        match="valueMissing"
-                                        data-accent-color="red"
-
-                                    >
-                                        이메일을 입력해주세요
-                                    </Form.Message>
-                                    <Form.Message
-                                        className="rt-Text rt-r-size-1"
-                                        match="typeMismatch"
-                                        data-accent-color="red"
-                                    >
-                                        유효한 이메일 주소를 입력해주세요
-                                    </Form.Message>
-                                </Flex>
-                                <div className="rt-TextFieldRoot rt-r-size-2 rt-variant-surface">
-                                    <Form.Control asChild>
-                                        <input
-                                            className="rt-reset rt-TextFieldInput"
-                                            type="email"
-                                            placeholder="이메일을 입력해주세요."
-                                            onChange={handleEmailChange}
-                                            value={email}
-                                            required />
-                                    </Form.Control>
-                                </div>
-                            </Flex>
-                        </Form.Field>
-                        <Form.Field
-                            className="FormField"
-                            name="password"
-                        >
-                            <Flex direction="column">
-                                <Flex justify="between" align={"center"}>
-                                    <Form.Label
-                                        className="rt-Text rt-r-size-2 rt-r-weight-bold rt-r-mb-1">
-                                        비밀번호
-                                    </Form.Label>
-                                    <Form.Message
-                                        className="rt-Text rt-r-size-1"
-                                        match="valueMissing"
-                                        data-accent-color="red"
-                                    >
-                                        비밀번호를 입력해주세요
-                                    </Form.Message>
-                                </Flex>
-                                <div className="rt-TextFieldRoot rt-r-size-2 rt-variant-surface">
-                                    <Form.Control asChild>
-                                        <input
-                                            className="rt-reset rt-TextFieldInput"
-                                            type="password"
-                                            placeholder="비밀번호를 입력해주세요."
-                                            required />
-                                    </Form.Control>
-                                </div>
-                            </Flex>
-                        </Form.Field>
+                        <EmailFormField />
+                        <PasswordFormField />
                     </Flex>
                     <Flex justify="between" align="center" gap="3" mt="4">
                         <Text
