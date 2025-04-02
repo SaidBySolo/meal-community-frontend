@@ -4,7 +4,6 @@ import '../animation.css';
 import { CreateUserDTO } from "../dtos/user";
 import { PartialSchoolInfo } from "../types";
 import { Form } from "radix-ui";
-import { API_URL } from "../constant";
 import NameFormField from "./Form/Name";
 import EmailFormField from "./Form/Email";
 import PasswordFormField from "./Form/Password";
@@ -12,6 +11,7 @@ import PasswordConfirmFormField from "./Form/PasswordConfirm";
 import SchoolFormField from "./Form/School";
 import GradeFormField from "./Form/Grade";
 import RoomFormField from "./Form/Room";
+import { requestRegister } from "../api";
 
 interface RegisterDialogProps {
     open: boolean;
@@ -49,27 +49,23 @@ const RegisterDialog = ({ open, onOpenChange, onSwitchToLogin }: RegisterDialogP
             }
         }
 
-        return await requestRegister(createUserDto);
+        const response = await requestRegister(createUserDto);
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            setIsPending(false);
+            setErrMessage(result.message);
+            return;
+        }
+        setIsPending(false);
+        localStorage.setItem('access_token', result.access_token);
+        window.location.href = '/';
     }
 
-
-
-    const requestRegister = async (createUserDto: CreateUserDTO) => {
-        const response = await fetch(API_URL + '/api/user/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(createUserDto),
-        });
-
-        return response
-
-    }
 
     return (
-        <Dialog.Root open={open} onOpenChange={onOpenChange}  >
-
+        <Dialog.Root open={open} onOpenChange={onOpenChange} >
             <Dialog.Content maxWidth="450px">
                 <Dialog.Title>회원가입</Dialog.Title>
                 <Dialog.Description size="2" mb="4">
@@ -99,16 +95,7 @@ const RegisterDialog = ({ open, onOpenChange, onSwitchToLogin }: RegisterDialogP
                     e.preventDefault();
                     setIsPending(true);
                     const formData = new FormData(e.currentTarget);
-                    const response = await submit(formData);
-                    const result = await response.json();
-                    if (!response.ok) {
-                        setIsPending(false);
-                        setErrMessage(result.message);
-                        return;
-                    }
-                    setIsPending(false);
-                    localStorage.setItem('access_token', result.access_token);
-                    window.location.href = '/';
+                    await submit(formData);
                 }} >
                     <Flex direction="column" gap="3">
                         <NameFormField />

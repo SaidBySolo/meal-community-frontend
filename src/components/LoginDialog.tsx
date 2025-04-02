@@ -1,10 +1,10 @@
-import { Button, Dialog, Flex, Text, TextField } from "@radix-ui/themes";
-import { FormEvent, useRef, useState } from "react";
+import { Button, Dialog, Flex, Text, } from "@radix-ui/themes";
+import { useState } from "react";
 import '../animation.css';
 import { Form } from "radix-ui"
-import { API_URL } from "../constant";
 import PasswordFormField from "./Form/Password";
 import EmailFormField from "./Form/Email";
+import { requestLogin } from "../api";
 
 
 interface LoginDialogProps {
@@ -20,25 +20,18 @@ const LoginDialog = ({ open, onOpenChange, onSwitchToRegister }: LoginDialogProp
     const [errorKey, setErrorKey] = useState(0)
 
 
-    const submit = (formData: FormData) => {
+    const handleClose = () => {
+        setError(false);
+        setErrMessage('');
+        setErrorKey(0);
+    }
+
+
+    const submit = async (formData: FormData) => {
         const email = formData.get('email') as string;
         const password = formData.get('password') as string;
 
-        requestLogin(email!, password!);
-    }
-
-    const requestLogin = async (email: string, password: string) => {
-        const response = await fetch(API_URL + "/api/user/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password,
-            }),
-            credentials: "include",
-        });
+        const response = await requestLogin(email, password)
         const body = await response.json();
 
         if (response.status === 200) {
@@ -51,14 +44,10 @@ const LoginDialog = ({ open, onOpenChange, onSwitchToRegister }: LoginDialogProp
             setErrMessage(body.message);
             setErrorKey(prev => prev + 1);
         }
-
     }
 
-    const handleClose = () => {
-        setError(false);
-        setErrMessage('');
-        setErrorKey(0);
-    }
+
+
 
 
     return (
