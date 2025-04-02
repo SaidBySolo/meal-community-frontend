@@ -44,6 +44,7 @@ const SchoolFormField = (
                                     () => setIsSearchSchoolOpen(true)
                                 }
                                 placeholder={partialSchoolInfo.name === "" ? "학교를 입력해주세요." : partialSchoolInfo.name}
+                                value={partialSchoolInfo.name}
                                 required />
                         </Form.Control>
                         <Flex className="rt-TextFieldSlot">

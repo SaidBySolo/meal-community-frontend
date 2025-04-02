@@ -1,13 +1,10 @@
-import { Button, Dialog, Flex, Link, Text, TextField } from "@radix-ui/themes";
-import { useRef, useState } from "react";
+import { Button, Dialog, Flex, Link, Text } from "@radix-ui/themes";
+import { useState } from "react";
 import '../animation.css';
-import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
-import SearchSchoolDialog from "./SearchSchoolDialog";
-import { CreateUserDTO, SchoolInfo } from "../dtos/user";
+import { CreateUserDTO } from "../dtos/user";
 import { PartialSchoolInfo } from "../types";
 import { Form } from "radix-ui";
 import { API_URL } from "../constant";
-import { useFormStatus } from "react-dom";
 import NameFormField from "./Form/Name";
 import EmailFormField from "./Form/Email";
 import PasswordFormField from "./Form/Password";
@@ -25,7 +22,7 @@ interface RegisterDialogProps {
 
 const RegisterDialog = ({ open, onOpenChange, onSwitchToLogin }: RegisterDialogProps) => {
     const [isPending, setIsPending] = useState(false);
-
+    const [errMessage, setErrMessage] = useState("");
     const [partialSchoolInfo, setPartialSchoolInfo] = useState<PartialSchoolInfo>({
 
         name: "",
@@ -66,10 +63,7 @@ const RegisterDialog = ({ open, onOpenChange, onSwitchToLogin }: RegisterDialogP
             body: JSON.stringify(createUserDto),
         });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            return errorData
-        }
+        return response
 
     }
 
@@ -101,13 +95,20 @@ const RegisterDialog = ({ open, onOpenChange, onSwitchToLogin }: RegisterDialogP
                 </Dialog.Description>
 
 
-                <Form.Root className="FormRoot" action={submit} onSubmit={async (e) => {
+                <Form.Root className="FormRoot" onSubmit={async (e) => {
                     e.preventDefault();
                     setIsPending(true);
                     const formData = new FormData(e.currentTarget);
-                    const result = await submit(formData);
-                    if (result) {
+                    const response = await submit(formData);
+                    const result = await response.json();
+                    if (!response.ok) {
+                        setIsPending(false);
+                        setErrMessage(result.message);
+                        return;
                     }
+                    setIsPending(false);
+                    localStorage.setItem('access_token', result.access_token);
+                    window.location.href = '/';
                 }} >
                     <Flex direction="column" gap="3">
                         <NameFormField />
@@ -121,6 +122,13 @@ const RegisterDialog = ({ open, onOpenChange, onSwitchToLogin }: RegisterDialogP
                         <GradeFormField />
                         <RoomFormField />
                     </Flex>
+                    {
+                        errMessage && (
+                            <Text size="1" color="red" mt="2">
+                                {errMessage}
+                            </Text>
+                        )
+                    }
                     <Flex justify="end" align="center" gap="3" mt="4">
                         <Flex gap="2">
                             <Dialog.Close>
