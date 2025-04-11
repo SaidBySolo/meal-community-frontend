@@ -3,8 +3,7 @@ import { useRef, useState } from "react";
 import '../animation.css';
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { PartialSchoolInfo } from "../types";
-import { API_URL } from "../constant";
-
+import { requestSearchSchool } from "../api";
 interface SearchSchoolDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -42,24 +41,17 @@ const SearchSchoolDialog = ({ open, onOpenChange, setPartialSchoolInfo }: Search
     const [setSchools, setSetSchools] = useState<School[]>([]);
     const [errMessage, setErrMessage] = useState<string>("");
 
-    
+
 
 
     const searchSchool = async (schoolName: string) => {
-        const response = await fetch(API_URL + '/api/school/search', {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ name: schoolName }),
-        });
-
-        const result = await response.json()
+        const response = await requestSearchSchool(schoolName)
+        const result = await response.json();
 
         if (!response.ok) {
             setErrMessage(result.message);
             setIsFound(false);
-            return;
+             n return;
         }
 
         setIsFound(true);

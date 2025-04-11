@@ -1,13 +1,22 @@
 import { Box, Button, Flex } from "@radix-ui/themes"
 import LoginDialog from "./LoginDialog"
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RegisterDialog from "./RegisterDialog";
 import CombinedDialogs from "./CombinedDialogs";
 
 
 
 const MainPage = () => {
+
+    useEffect(
+    () =>{
+        const accessToken = localStorage.getItem("access_token");
+        const refreshToken = localStorage.getItem("refresh_token");
+        
+
+    }, []
+    )
     return (
         <Box
             style={{
