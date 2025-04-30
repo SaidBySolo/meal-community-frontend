@@ -1,9 +1,9 @@
-import { Button, Dialog, Flex, Link, RadioCards, ScrollArea, Text, TextField } from "@radix-ui/themes";
-import { useRef, useState } from "react";
+import { Button, Dialog, Flex, RadioCards, ScrollArea, Text, TextField } from "@radix-ui/themes";
+import { useState } from "react";
 import '../animation.css';
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { PartialSchoolInfo } from "../types";
-import { API_URL } from "../constant";
+import { requestSearchSchool } from "../api";
 
 interface SearchSchoolDialogProps {
     open: boolean;
@@ -43,16 +43,8 @@ const SearchSchoolDialog = ({ open, onOpenChange, setPartialSchoolInfo }: Search
     const [errMessage, setErrMessage] = useState<string>("");
 
     
-
-
     const searchSchool = async (schoolName: string) => {
-        const response = await fetch(API_URL + '/api/school/search', {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ name: schoolName }),
-        });
+        const response = await requestSearchSchool(schoolName);
 
         const result = await response.json()
 

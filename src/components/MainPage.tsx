@@ -1,35 +1,58 @@
-import { Box, Button, Flex } from "@radix-ui/themes"
-import LoginDialog from "./LoginDialog"
+import { Box, Flex } from "@radix-ui/themes"
 
-import { useState } from "react";
-import RegisterDialog from "./RegisterDialog";
 import CombinedDialogs from "./CombinedDialogs";
-
-
+import MealPage from "./MealPage";
+import { useEffect, useRef, useState } from "react";
+import { requestCheckToken, requestRefresh } from "../api";
 
 const MainPage = () => {
+    const [isLogin, setIsLogin] = useState(false);
+
+    const effectRan = useRef(false);
+
+    useEffect(() => {
+        if (effectRan.current === false) {
+            const checkToken = async () => {
+                const isTokenValid = await requestCheckToken();
+                if (isTokenValid) {
+                    setIsLogin(true);
+                } else {
+                    const isRefreshSuccess = await requestRefresh();
+                    if (isRefreshSuccess) {
+                        setIsLogin(true);
+                    }
+                }
+            }
+            checkToken();
+        }
+        return () => {
+            effectRan.current = true;
+        }
+    }, [])
+
     return (
         <Box
             style={{
                 height: "100vh",
             }}
         >
-            <Flex
-                direction="column"
-                align="center"
-                justify="center"
-                style={{
-                    height: '100%',
-                }}
-            >
-                <img src="../public/meal.png" alt="meal" width={300} height={300} />
-                <h1>오늘의 급식은?</h1>
+            {
+                isLogin ? <MealPage /> :
+                    <Flex
+                        direction="column"
+                        align="center"
+                        justify="center"
+                        style={{
+                            height: '100%',
+                        }}
+                    >
+                        <img src="../public/meal.png" alt="meal" width={300} height={300} />
+                        <h1>오늘의 급식은?</h1>
 
-                <CombinedDialogs />
-            </Flex>
+                        <CombinedDialogs />
+                    </Flex>
+            }
         </Box>
-
-
     )
 }
 

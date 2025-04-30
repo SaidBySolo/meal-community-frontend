@@ -1,7 +1,5 @@
 import { Flex, Text, Button, Box, Section } from "@radix-ui/themes"
-import Header from "./components/Header"
 import MainPage from "./components/MainPage"
-import Footer from "./components/Footer"
 
 
 function App() {
