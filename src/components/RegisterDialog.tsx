@@ -42,10 +42,11 @@ const RegisterDialog = ({ open, onOpenChange, onSwitchToLogin }: RegisterDialogP
             name: name,
             email: email,
             password: password,
+            grade: parseInt(grade),
+            room: parseInt(room),
             school_info: {
                 ...partialSchoolInfo,
-                grade: parseInt(grade),
-                room: parseInt(room),
+
             }
         }
 
