@@ -7,7 +7,7 @@ function LogoutButton(){
         
         console.log("로그아웃 버튼 눌림");
 
-        sessionStorage.removeItem("access_token");
+        localStorage.removeItem("access_token");
 
         try {
             await requestLogout();
@@ -16,7 +16,7 @@ function LogoutButton(){
             return;  // 오류 발생 시, 이동하지 않도록 막기
         }
         
-        window.location.href = "/MainPage";
+        window.location.href = "/";
 };
 
     return (
