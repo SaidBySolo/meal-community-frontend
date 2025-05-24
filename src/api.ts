@@ -84,6 +84,14 @@ const requestCheckToken = async () => {
     return response.ok;
 }
 
+const requestLogout = async () =>{
+     const response = await fetch(API_URL + "/api/user/logout", {
+        method: "GET",
+        credentials: "include",
+    });
+    return response;
+}
+
 
 
 export {
@@ -92,5 +100,6 @@ export {
     requestSearchSchool,
     requestGetDailyMeal,
     requestCheckToken,
-    requestRefresh
+    requestRefresh,
+    requestLogout
 }

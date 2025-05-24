@@ -4,6 +4,7 @@ import { requestGetDailyMeal } from "../api";
 import { Meal } from "../types";
 import MealInfo from "./MealInfo";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
+import LogoutButton from "./LogoutButton";
 
 const MealPage = () => {
     const [meals, setMeals] = useState<Meal[]>([]);
@@ -296,6 +297,7 @@ const MealPage = () => {
                             </Flex>
                         </Card>
                     </Flex>
+                    <LogoutButton/>
                 </Box>
             )}
         </Flex>

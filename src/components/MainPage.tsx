@@ -46,7 +46,7 @@ const MainPage = () => {
                             height: '100%',
                         }}
                     >
-                        <img src="../public/meal.png" alt="meal" width={300} height={300} />
+                        <img src="./public/meal.png" alt="meal" width={300} height={300} />
                         <h1>오늘의 급식은?</h1>
 
                         <CombinedDialogs />
