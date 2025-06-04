@@ -1,5 +1,6 @@
 import { GetDailyMealDTO } from "./dtos/meal";
 import { CreateUserDTO } from "./dtos/user";
+import { CreateCommentDTO, GetCommentDTO } from "./dtos/comment";
 
 export const API_URL = "http://localhost:8000"
 
@@ -92,7 +93,21 @@ const requestLogout = async () =>{
     return response;
 }
 
-
+const requestComment = async ()=>{
+    const response = await fetch(API_URL + "/api/comment/write", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        body: JSON.stringify({
+            meal_id: 1,
+            content: "테스트 댓글",
+            parent_id: null,
+        } as CreateCommentDTO),
+        credentials: "include",
+    });
+}
 
 export {
     requestLogin,
@@ -101,5 +116,6 @@ export {
     requestGetDailyMeal,
     requestCheckToken,
     requestRefresh,
-    requestLogout
+    requestLogout,
+    requestComment
 }

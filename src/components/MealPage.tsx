@@ -1,6 +1,6 @@
 import { Avatar, Box, Button, Card, Flex, IconButton, RadioCards, ScrollArea, Text, TextArea } from "@radix-ui/themes";
 import { useEffect, useRef, useState } from "react";
-import { requestGetDailyMeal } from "../api";
+import { requestGetDailyMeal, requestComment } from "../api";
 import { Meal } from "../types";
 import MealInfo from "./MealInfo";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
@@ -15,20 +15,7 @@ const MealPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const isLoadingRef = useRef(false);
 
-    const [comments, setComments] = useState<{
-        [key: string]: Array<{ id: string; user: string; date: string; content: string }>
-    }>({
-        "조식": [
-            { id: "1", user: "아침맨", date: "2025-04-16 07:30", content: "오늘 아침밥 정말 맛있었어요. 특히 계란찜이 최고였습니다!" }
-        ],
-        "중식": [
-            { id: "2", user: "점심왕", date: "2025-04-16 12:30", content: "오늘 급식 너무 맛있어요! 특히 된장찌개가 집에서 먹는 것처럼 맛있었습니다." },
-            { id: "3", user: "맛있당", date: "2025-04-16 12:45", content: "후식으로 나온 요구르트도 진짜 맛있었어요!" }
-        ],
-        "석식": [
-            { id: "4", user: "저녁별", date: "2025-04-16 18:15", content: "오늘 저녁 메뉴는 조금 아쉬웠네요. 내일은 더 맛있었으면 좋겠어요." }
-        ]
-    });
+    const [comments, setComments] = useState<requestComment[]>([]);
 
     const formatDate = (date: Date) =>
         date.toISOString().split('T')[0].replace(/-/g, "");
