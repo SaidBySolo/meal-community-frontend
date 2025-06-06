@@ -77,23 +77,20 @@ const MealPage = () => {
         // 댓글 생성 요청 본문 구성
         const createCommentDTO: CreateCommentDTO = {
             content: commentInput,
-            meal_id: mealId,  // 선택된 식사 ID
-            parent_id: null,          // 대댓글이 아닌 경우 null
+            meal_id: mealId, // 선택된 식사 ID
+            parent_id: null // 대댓글이 아닌 경우 null
         };
         
         try {
             // 서버에 댓글 생성 요청
-            const response = await requestComment(createCommentDTO);
-            if (!response.ok) {
-                throw new Error("댓글 작성 실패");
-            }
+            await requestComment(createCommentDTO);
 
             // 서버 응답으로부터 newComment 객체 생성
             const newComment = {
-                id: createdComment.id,
-                user: createdComment.author || "익명", // 응답에 author 포함 시 사용
+                // id : CommentDTO.id, //
+                // user: CommentDTO.author || "익명", // 응답에 author 포함 시 사용
                 date: formattedDate,
-                content: createdComment.content,
+                content: createCommentDTO.content,
             };
 
             // 상태 갱신

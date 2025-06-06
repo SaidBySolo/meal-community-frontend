@@ -105,11 +105,15 @@ const requestComment = async (createCommentDto: CreateCommentDTO) => {
         credentials: 'include',
     });
     console.log("보내는 데이터:", createCommentDto);
-    // 서버로부터 응답이 성공적이면 JSON 형태로 응답을 반환
+    console.log("보내는 DTO:", JSON.stringify(createCommentDto, null, 2));
+
     if (response.ok) {
         return await response.json() as GetCommentDTO;
     }
-    throw new Error("Failed to create comment");
+
+    const errorText = await response.text();
+    console.error("댓글 작성 실패", response.status, errorText);
+    throw new Error(`Failed to create comment: ${response.status} ${errorText}`);
 }
 
 const requestGetComment = async (meal_id: number) => {
