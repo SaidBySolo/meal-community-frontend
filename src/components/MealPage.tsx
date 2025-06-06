@@ -1,10 +1,11 @@
 import { Avatar, Box, Button, Card, Flex, IconButton, RadioCards, ScrollArea, Text, TextArea } from "@radix-ui/themes";
 import { useEffect, useRef, useState } from "react";
-import { requestGetDailyMeal, requestComment } from "../api";
+import { requestComment, requestGetComment, requestGetDailyMeal } from "../api";
 import { Meal } from "../types";
 import MealInfo from "./MealInfo";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import LogoutButton from "./LogoutButton";
+import { CreateCommentDTO, GetCommentDTO } from "../dtos/comment";
 
 const MealPage = () => {
     const [meals, setMeals] = useState<Meal[]>([]);
@@ -15,7 +16,20 @@ const MealPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const isLoadingRef = useRef(false);
 
-    const [comments, setComments] = useState<requestComment[]>([]);
+    const [comments, setComments] = useState<{
+        [key: string]: Array<{ id: string; user: string; date: string; content: string }>
+    }>({
+        "조식": [
+            { id: "1", user: "아침맨", date: "2025-04-16 07:30", content: "오늘 아침밥 정말 맛있었어요. 특히 계란찜이 최고였습니다!" }
+        ],
+        "중식": [
+            { id: "2", user: "점심왕", date: "2025-04-16 12:30", content: "오늘 급식 너무 맛있어요! 특히 된장찌개가 집에서 먹는 것처럼 맛있었습니다." },
+            { id: "3", user: "맛있당", date: "2025-04-16 12:45", content: "후식으로 나온 요구르트도 진짜 맛있었어요!" }
+        ],
+        "석식": [
+            { id: "4", user: "저녁별", date: "2025-04-16 18:15", content: "오늘 저녁 메뉴는 조금 아쉬웠네요. 내일은 더 맛있었으면 좋겠어요." }
+        ]
+    });
 
     const formatDate = (date: Date) =>
         date.toISOString().split('T')[0].replace(/-/g, "");
@@ -38,37 +52,47 @@ const MealPage = () => {
         });
     };
 
-    const handleSelectMeal = (mealName: string) => {
-        setSelectedMealType(mealName);
+    const handleCommentSubmit = async () => {
+    if (!commentInput.trim() || !selectedMealType) return;
+
+    // 현재 날짜 및 시간 포맷팅
+    const now = new Date();
+    const formattedDate = now.toISOString().split('T')[0] + " " +
+        now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+
+    // 댓글 생성 요청 본문 구성
+    const createCommentDto: CreateCommentDTO = {
+        content: commentInput,
+        meal_id: selectedMealType,  // 선택된 식사 ID
+        parent_id: null,          // 대댓글이 아닌 경우 null
     };
 
-    const handleCommentSubmit = () => {
-        if (!commentInput.trim() || !selectedMealType) return;
+    try {
+        // 서버에 댓글 생성 요청
+        const createdComment = await requestComment(createCommentDto);
 
-        // 현재 날짜 및 시간 포맷팅
-        const now = new Date();
-        const formattedDate = now.toISOString().split('T')[0] + " " +
-            now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
-
-        // 새 댓글 객체 생성
+        // 서버 응답으로부터 newComment 객체 생성
         const newComment = {
-            id: Date.now().toString(), // 임시 ID
-            user: "사용자", // 실제 앱에서는 로그인한 사용자 정보 사용
+            id: createdComment.id,
+            user: createdComment.author || "익명", // 응답에 author 포함 시 사용
             date: formattedDate,
-            content: commentInput
+            content: createdComment.content,
         };
 
-        // 선택된 식사 유형의 댓글 목록에 추가
+        // 상태 갱신
         setComments(prev => ({
             ...prev,
-            [selectedMealType]: [...(prev[selectedMealType] || []), newComment]
+            [selectedMealType]: [...(prev[selectedMealType] || []), newComment],
         }));
 
         // 입력 필드 초기화
         setCommentInput("");
+    } catch (error) {
+        console.error("댓글 작성 중 오류:", error);
+        alert("댓글을 등록하는 중 문제가 발생했습니다.");
+    }
+};
 
-        // 여기에서 실제 API 호출하여 댓글 저장 로직 추가 필요
-    };
 
     useEffect(() => {
         const fetchData = async () => {

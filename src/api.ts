@@ -27,6 +27,7 @@ const requestRegister = async (createUserDto: CreateUserDTO) => {
         body: JSON.stringify(createUserDto),
         credentials: 'include',
     });
+    console.log("보내는 데이터:", createUserDto);
 
     return response
 }
@@ -93,20 +94,35 @@ const requestLogout = async () =>{
     return response;
 }
 
-const requestComment = async ()=>{
-    const response = await fetch(API_URL + "/api/comment/write", {
-        method: "POST",
+const requestComment = async (createCommentDto: CreateCommentDTO) => {
+    const response = await fetch(API_URL + '/api/comment/write', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        body: JSON.stringify(createCommentDto),
+        credentials: 'include',
+    });
+    if (response.ok) {
+        return await response.json() as GetCommentDTO;
+    }
+    throw new Error("Failed to create comment");
+}
+
+const requestGetComment = async (meal_id: number) => {
+    const response = await fetch(API_URL + `/api/comment/${meal_id}`, {
+        method: "GET",
         headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
         },
-        body: JSON.stringify({
-            meal_id: 1,
-            content: "테스트 댓글",
-            parent_id: null,
-        } as CreateCommentDTO),
         credentials: "include",
     });
+    if (response.ok) {
+        return await response.json() as GetCommentDTO[];
+    }
+    return [];
 }
 
 export {
@@ -117,5 +133,6 @@ export {
     requestCheckToken,
     requestRefresh,
     requestLogout,
-    requestComment
+    requestComment,
+    requestGetComment,
 }
