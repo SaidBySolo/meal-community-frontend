@@ -52,45 +52,62 @@ const MealPage = () => {
         });
     };
 
-    const handleCommentSubmit = async () => {
-    if (!commentInput.trim() || !selectedMealType) return;
-
-    // 현재 날짜 및 시간 포맷팅
-    const now = new Date();
-    const formattedDate = now.toISOString().split('T')[0] + " " +
-        now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
-
-    // 댓글 생성 요청 본문 구성
-    const createCommentDto: CreateCommentDTO = {
-        content: commentInput,
-        meal_id: selectedMealType,  // 선택된 식사 ID
-        parent_id: null,          // 대댓글이 아닌 경우 null
+    const handleSelectMeal = (mealName: string) => {
+        setSelectedMealType(mealName);
     };
 
-    try {
-        // 서버에 댓글 생성 요청
-        const createdComment = await requestComment(createCommentDto);
+    const handleCommentSubmit = async () => {
+        if (!commentInput.trim() || !selectedMealType) return;
 
-        // 서버 응답으로부터 newComment 객체 생성
-        const newComment = {
-            id: createdComment.id,
-            user: createdComment.author || "익명", // 응답에 author 포함 시 사용
-            date: formattedDate,
-            content: createdComment.content,
+        // 현재 날짜 및 시간 포맷팅
+        const now = new Date();
+        const formattedDate = now.toISOString().split('T')[0] + " " +
+            now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+
+        // 식사 ID 자료형 변환
+        const mealId = 
+            selectedMealType === "조식" ? 1 :
+            selectedMealType === "중식" ? 2 :
+            selectedMealType === "석식" ? 3 : null;
+        if (!mealId) {
+            console.error("선택된 식사 유형에 해당하는 ID를 찾을 수 없습니다.");
+            return;
+        }
+
+        // 댓글 생성 요청 본문 구성
+        const createCommentDTO: CreateCommentDTO = {
+            content: commentInput,
+            meal_id: mealId,  // 선택된 식사 ID
+            parent_id: null,          // 대댓글이 아닌 경우 null
         };
+        
+        try {
+            // 서버에 댓글 생성 요청
+            const response = await requestComment(createCommentDTO);
+            if (!response.ok) {
+                throw new Error("댓글 작성 실패");
+            }
 
-        // 상태 갱신
-        setComments(prev => ({
-            ...prev,
-            [selectedMealType]: [...(prev[selectedMealType] || []), newComment],
-        }));
+            // 서버 응답으로부터 newComment 객체 생성
+            const newComment = {
+                id: createdComment.id,
+                user: createdComment.author || "익명", // 응답에 author 포함 시 사용
+                date: formattedDate,
+                content: createdComment.content,
+            };
 
-        // 입력 필드 초기화
-        setCommentInput("");
-    } catch (error) {
-        console.error("댓글 작성 중 오류:", error);
-        alert("댓글을 등록하는 중 문제가 발생했습니다.");
-    }
+            // 상태 갱신
+            setComments(prev => ({
+                ...prev,
+                [selectedMealType]: [...(prev[selectedMealType] || []), newComment],
+            }));
+
+            // 입력 필드 초기화
+            setCommentInput("");
+        } catch (error) {
+            console.error("댓글 작성 중 오류:", error);
+            alert("댓글을 등록하는 중 문제가 발생했습니다.");
+        }
 };
 
 

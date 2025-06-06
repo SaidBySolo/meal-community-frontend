@@ -28,7 +28,7 @@ const requestRegister = async (createUserDto: CreateUserDTO) => {
         credentials: 'include',
     });
     console.log("보내는 데이터:", createUserDto);
-
+    // 서버로부터 응답이 성공적이면 JSON 형태로 응답을 반환
     return response
 }
 
@@ -104,6 +104,8 @@ const requestComment = async (createCommentDto: CreateCommentDTO) => {
         body: JSON.stringify(createCommentDto),
         credentials: 'include',
     });
+    console.log("보내는 데이터:", createCommentDto);
+    // 서버로부터 응답이 성공적이면 JSON 형태로 응답을 반환
     if (response.ok) {
         return await response.json() as GetCommentDTO;
     }
