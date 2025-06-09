@@ -7,7 +7,7 @@ interface MealInfoProps {
     onSelectMeal?: (mealName: string) => void;
 }
 
-const MealInfo = ({ meal, index, onSelectMeal }: MealInfoProps) => {
+const MealInfo = ({ meal, onSelectMeal }: MealInfoProps) => {
     const handleSelect = () => {
         if (onSelectMeal) {
             onSelectMeal(meal.name);

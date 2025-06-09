@@ -1,11 +1,10 @@
 import { Avatar, Box, Button, Card, Flex, IconButton, RadioCards, ScrollArea, Text, TextArea } from "@radix-ui/themes";
 import { useEffect, useRef, useState } from "react";
-import { requestComment, requestGetComment, requestGetDailyMeal } from "../api";
+import { requestGetDailyMeal } from "../api";
 import { Meal } from "../types";
 import MealInfo from "./MealInfo";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import LogoutButton from "./LogoutButton";
-import { CreateCommentDTO, GetCommentDTO } from "../dtos/comment";
 
 const MealPage = () => {
     const [meals, setMeals] = useState<Meal[]>([]);
@@ -56,7 +55,7 @@ const MealPage = () => {
         setSelectedMealType(mealName);
     };
 
-    const handleCommentSubmit = async () => {
+    const handleCommentSubmit = () => {
         if (!commentInput.trim() || !selectedMealType) return;
 
         // 현재 날짜 및 시간 포맷팅
@@ -64,49 +63,25 @@ const MealPage = () => {
         const formattedDate = now.toISOString().split('T')[0] + " " +
             now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
 
-        // 식사 ID 자료형 변환
-        const mealId = 
-            selectedMealType === "조식" ? 1 :
-            selectedMealType === "중식" ? 2 :
-            selectedMealType === "석식" ? 3 : null;
-        if (!mealId) {
-            console.error("선택된 식사 유형에 해당하는 ID를 찾을 수 없습니다.");
-            return;
-        }
-
-        // 댓글 생성 요청 본문 구성
-        const createCommentDTO: CreateCommentDTO = {
-            content: commentInput,
-            meal_id: mealId, // 선택된 식사 ID
-            parent_id: null // 대댓글이 아닌 경우 null
+        // 새 댓글 객체 생성
+        const newComment = {
+            id: Date.now().toString(), // 임시 ID
+            user: "사용자", // 실제 앱에서는 로그인한 사용자 정보 사용
+            date: formattedDate,
+            content: commentInput
         };
-        
-        try {
-            // 서버에 댓글 생성 요청
-            await requestComment(createCommentDTO);
 
-            // 서버 응답으로부터 newComment 객체 생성
-            const newComment = {
-                // id : CommentDTO.id, //
-                // user: CommentDTO.author || "익명", // 응답에 author 포함 시 사용
-                date: formattedDate,
-                content: createCommentDTO.content,
-            };
+        // 선택된 식사 유형의 댓글 목록에 추가
+        setComments(prev => ({
+            ...prev,
+            [selectedMealType]: [...(prev[selectedMealType] || []), newComment]
+        }));
 
-            // 상태 갱신
-            setComments(prev => ({
-                ...prev,
-                [selectedMealType]: [...(prev[selectedMealType] || []), newComment],
-            }));
+        // 입력 필드 초기화
+        setCommentInput("");
 
-            // 입력 필드 초기화
-            setCommentInput("");
-        } catch (error) {
-            console.error("댓글 작성 중 오류:", error);
-            alert("댓글을 등록하는 중 문제가 발생했습니다.");
-        }
-};
-
+        // 여기에서 실제 API 호출하여 댓글 저장 로직 추가 필요
+    };
 
     useEffect(() => {
         const fetchData = async () => {

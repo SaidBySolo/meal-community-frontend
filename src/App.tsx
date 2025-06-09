@@ -1,4 +1,4 @@
-import { Flex, Text, Button, Box, Section } from "@radix-ui/themes"
+import { Flex } from "@radix-ui/themes"
 import MainPage from "./components/MainPage"
 
 
