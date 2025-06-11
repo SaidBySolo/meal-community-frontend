@@ -16,7 +16,7 @@ const MealPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const isLoadingRef = useRef(false);
 
-    const [comments, setComments] = useState<{ [key: string]: GetCommentDTO[] }>({});
+    const [comments, setComments] = useState<GetCommentDTO[]>([]);
 
     const formatDate = (date: Date) =>
         date.toISOString().split('T')[0].replace(/-/g, "");
@@ -63,15 +63,8 @@ const MealPage = () => {
         try {
             // 서버에 댓글 생성 요청
             await requestComment(createCommentDTO);
-
-            // 댓글 생성 후, 해당 급식의 최신 댓글 목록을 서버에서 가져옴
-            const latestComments = await requestGetComment(selectedMeal.meal_id);
-
-            // 최신 댓글 목록을 상태에 반영 (user, date 등 백엔드 값 그대로 사용)
-            setComments(prev => ({
-                ...prev,
-                [selectedMeal.name]: latestComments, // 변환 없이 그대로 저장
-            }));
+            const result = await requestGetComment(selectedMeal.meal_id);
+            setComments(Array.isArray(result.results) ? result.results : []);
         } catch (error) {
             console.error("댓글 작성 중 오류:", error);
             alert("댓글을 등록하는 중 문제가 발생했습니다.");
@@ -120,8 +113,21 @@ const MealPage = () => {
         fetchData();
     }, [selectedDate]);
 
-    // 현재 선택된 급식의 댓글만 필터링
-    const currentComments = selectedMeal ? (comments[selectedMeal.name] || []) : [];
+    useEffect(() => {
+        const fetchComments = async () => {
+            if (!selectedMeal) {
+                setComments([]);
+                return;
+            }
+            try {
+                const result = await requestGetComment(selectedMeal.meal_id);
+                setComments(Array.isArray(result.results) ? result.results : []);
+            } catch (e) {
+                setComments([]);
+            }
+        };
+        fetchComments();
+    }, [selectedMeal]);
 
     // 컨텐츠 영역 공통 너비 스타일
     const contentWidthStyle = {
@@ -227,19 +233,19 @@ const MealPage = () => {
                     <Flex direction="column" gap="3" width="100%">
                         <Flex justify="between" align="baseline">
                             <Text weight="bold" size={{ initial: "3", sm: "4" }}>{selectedMeal.name} 댓글</Text>
-                            <Text size="1" color="gray">총 {currentComments.length}개의 댓글</Text>
+                            <Text size="1" color="gray">총 {(comments?.length ?? 0)}개의 댓글</Text>
                         </Flex>
 
                         {/* 댓글 목록 */}
                         <ScrollArea style={{ flex: 1 }}>
                             <Flex direction="column" gap="2" width="100%">
-                                {currentComments.length > 0 ? (
-                                    currentComments.map(comment => (
+                                {comments.length > 0 ? (
+                                    comments.map(comment => (
                                         <Card key={comment.id} size={{ initial: "1", sm: "2" }}>
                                             <Flex gap="2" align="start">
                                                 <Avatar
                                                     size={{ initial: "2", sm: "3" }}
-                                                    fallback={comment.user.charAt(0).toUpperCase()}
+                                                    fallback={comment.author?.name ? comment.author.name.charAt(0).toUpperCase() : "?"}
                                                     radius="full"
                                                 />
                                                 <Box style={{ flex: 1 }}>
@@ -250,9 +256,11 @@ const MealPage = () => {
                                                         justify="between"
                                                         width="100%"
                                                     >
-                                                        <Text as="div" size="2" weight="bold">{comment.user}</Text>
+                                                        <Text as="div" size="2" weight="bold">
+                                                            {comment.author?.name || "알 수 없음"}
+                                                        </Text>
                                                         <Text as="div" size="1" color="gray">
-                                                            {comment.date}
+                                                            {comment.created_at}
                                                         </Text>
                                                     </Flex>
                                                     <Text as="div" size="2" mt="1" style={{

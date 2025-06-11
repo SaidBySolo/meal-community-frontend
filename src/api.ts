@@ -108,7 +108,6 @@ const requestComment = async (createCommentDto: CreateCommentDTO) => {
     
     console.log("보내는 데이터:", createCommentDto);
     console.log("응답 상태:", response.status);
-    console.log("응답 내용:", await response.text());
     if (response.ok) {
         return await response.json();
     }
@@ -124,11 +123,7 @@ const requestGetComment = async (meal_id: number) => {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
         },
-        body: JSON.stringify({
-            meal_id: 1,
-            content: "테스트 댓글",
-            parent_id: null,
-        } as CreateCommentDTO),
+
         credentials: "include",
     });
     if (response.ok) {

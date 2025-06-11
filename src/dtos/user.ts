@@ -15,8 +15,13 @@ interface CreateUserDTO {
     school_info: SchoolInfo
 }
 
+interface PrivateUserDTO {
+  name: string;
+}
+
 export type {
     CreateUserDTO,
-    SchoolInfo
+    SchoolInfo,
+    PrivateUserDTO
 }
 
