@@ -16,7 +16,8 @@
     "@toast-ui/react-editor": "^3.2.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-remove-scroll": "^2.6.3"
+    "react-remove-scroll": "^2.6.3",
+    "react-router-dom": "^7.6.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

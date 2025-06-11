@@ -1,5 +1,4 @@
 // 로그아웃 버튼 기능 구현, 세션 삭제
-import { Button as RadixButton } from "@radix-ui/themes";
 import { requestLogout } from "../api";
 
 function LogoutButton() {
@@ -18,13 +17,7 @@ function LogoutButton() {
     window.location.href = "/";
   };
 
-  return (
-    <p>
-      <RadixButton radius="full" variant="soft" onClick={handleLogout}>
-        로그아웃
-      </RadixButton>
-    </p>
-  );
+  return <p onClick={handleLogout}>로그아웃</p>;
 }
 
 export default LogoutButton;

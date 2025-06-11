@@ -16,7 +16,6 @@ import { Meal } from "../types";
 import MealInfo from "./MealInfo";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import Header from "./Header";
-import LogoutButton from "./LogoutButton";
 
 const MealPage = () => {
   const [meals, setMeals] = useState<Meal[]>([]);

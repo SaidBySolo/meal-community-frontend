@@ -10,11 +10,13 @@ import { ExitIcon, HamburgerMenuIcon, PersonIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import LogoutButton from "./LogoutButton";
 import { requestMe } from "../api";
+import MyDialog from "./MyDialog";
 
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState<string>("");
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [userName, setUserName] = useState<string>("사용자");
+  const [userEmail, setUserEmail] = useState<string>("이메일 없음");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -23,24 +25,24 @@ const Header = () => {
         if (response.ok) {
           const data = await response.json();
           setUserName(data.name);
+          setUserEmail(data.email);
         } else {
           console.error("사용자 정보 가져오기 실패");
         }
       } catch (error) {
         console.error("사용자 정보 요청 중 오류 발생:", error);
       }
-    }
+    };
 
     // 로그인 상태 확인
     const token = localStorage.getItem("access_token");
     if (token) {
       setIsLoggedIn(true);
-      fetchUserInfo()
+      fetchUserInfo();
     } else {
       setIsLoggedIn(false);
     }
   }, []);
-
 
   return (
     <Flex
@@ -58,14 +60,6 @@ const Header = () => {
     >
       {/* 로고 및 햄버거 메뉴 */}
       <Flex align="center" gap="7">
-        <IconButton
-          variant="ghost"
-          color="gray"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          <HamburgerMenuIcon width={24} height={24} />
-        </IconButton>
-
         <Flex align="center" gap="2" style={{ cursor: "pointer" }}>
           <img
             src="/meal.png"
@@ -76,7 +70,7 @@ const Header = () => {
               borderRadius: "6px",
             }}
           />
-          <Text weight="bold" size="4" style={{ color: "#FF6B6B" }}>
+          <Text weight="bold" size="4" style={{ color: "black" }}>
             오늘의 급식
           </Text>
         </Flex>
@@ -86,19 +80,17 @@ const Header = () => {
       {isLoggedIn ? (
         <DropdownMenu.Root>
           <DropdownMenu.Trigger>
-            <Button variant="soft" color="gray">
-              <Flex align="center" gap="2">
-                <Avatar
-                  size="1"
-                  fallback={userName.charAt(0).toUpperCase()}
-                  color="gray"
-                />
-                <Text size="2">{userName}</Text>
-              </Flex>
-            </Button>
+            <Flex align="center" gap="2">
+              <Avatar
+                size={{ initial: "2", sm: "3" }}
+                fallback={userName.charAt(0).toUpperCase()}
+                radius="full"
+                style={{ cursor: "pointer" }}
+              />
+            </Flex>
           </DropdownMenu.Trigger>
           <DropdownMenu.Content>
-            <DropdownMenu.Item>
+            <DropdownMenu.Item onClick={() => setIsDialogOpen(true)}>
               <Flex align="center" gap="2">
                 <PersonIcon />
                 <Text size="2">내 정보</Text>
@@ -118,6 +110,13 @@ const Header = () => {
           로그인하여 더 많은 기능 이용하기
         </Text>
       )}
+
+      <MyDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        userName={userName}
+        userEmail={userEmail}
+      />
     </Flex>
   );
 };
