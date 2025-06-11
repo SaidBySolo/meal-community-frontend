@@ -9,6 +9,7 @@ import {
 import { ExitIcon, HamburgerMenuIcon, PersonIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import LogoutButton from "./LogoutButton";
+import { requestMe } from "../api";
 
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -16,32 +17,30 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const response = await requestMe();
+        if (response.ok) {
+          const data = await response.json();
+          setUserName(data.name);
+        } else {
+          console.error("사용자 정보 가져오기 실패");
+        }
+      } catch (error) {
+        console.error("사용자 정보 요청 중 오류 발생:", error);
+      }
+    }
+
     // 로그인 상태 확인
     const token = localStorage.getItem("access_token");
     if (token) {
       setIsLoggedIn(true);
-      // 사용자 정보를 로컬 스토리지에서 가져오기
-      const userInfo = localStorage.getItem("user_info");
-      if (userInfo) {
-        try {
-          const parsedInfo = JSON.parse(userInfo);
-          setUserName(parsedInfo.name || "사용자");
-        } catch (e) {
-          setUserName("사용자");
-        }
-      }
+      fetchUserInfo()
     } else {
       setIsLoggedIn(false);
     }
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("user_info");
-    setIsLoggedIn(false);
-    window.location.reload();
-  };
 
   return (
     <Flex
@@ -106,7 +105,7 @@ const Header = () => {
               </Flex>
             </DropdownMenu.Item>
             <DropdownMenu.Separator />
-            <DropdownMenu.Item color="red" onClick={handleLogout}>
+            <DropdownMenu.Item color="red">
               <Flex align="center" gap="2">
                 <ExitIcon />
                 <LogoutButton />
