@@ -17,6 +17,8 @@ const MealPage = () => {
     const isLoadingRef = useRef(false);
 
     const [comments, setComments] = useState<GetCommentDTO[]>([]);
+    const [replyInput, setReplyInput] = useState<{ [commentId: number]: string }>({});
+    const [replyOpen, setReplyOpen] = useState<{ [commentId: number]: boolean }>({});
 
     const formatDate = (date: Date) =>
         date.toISOString().split('T')[0].replace(/-/g, "");
@@ -48,10 +50,11 @@ const MealPage = () => {
     const handleCommentSubmit = async () => {
         if (!commentInput.trim() || !selectedMeal) return;
 
-        // 현재 날짜 및 시간 포맷팅
-        const now = new Date();
-        const formattedDate = now.toISOString().split('T')[0] + " " +
-            now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+        // // 현재 날짜 및 시간 포맷팅
+        // const now = new Date();
+        // const formattedDate = now.toISOString().split('T')[0] + " " +
+        //     now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+        //필요 없어보임
 
         // 댓글 생성 요청 본문 구성
         const createCommentDTO: CreateCommentDTO = {
@@ -60,16 +63,37 @@ const MealPage = () => {
             parent_id: null
         };
 
+
         try {
             // 서버에 댓글 생성 요청
             await requestComment(createCommentDTO);
             const result = await requestGetComment(selectedMeal.meal_id);
-            setComments(Array.isArray(result.results) ? result.results : []);
+            console.log("댓글 작성 후 응답:", result); // ← 여기!
+            setComments(result);
         } catch (error) {
             console.error("댓글 작성 중 오류:", error);
             alert("댓글을 등록하는 중 문제가 발생했습니다.");
         }
         setCommentInput("");
+    };
+
+    // 대댓글 작성 핸들러
+    const handleReplySubmit = async (parentId: number) => {
+        if (!replyInput[parentId]?.trim() || !selectedMeal) return;
+        const createCommentDTO: CreateCommentDTO = {
+            content: replyInput[parentId],
+            meal_id: selectedMeal.meal_id,
+            parent_id: parentId
+        };
+        try {
+            await requestComment(createCommentDTO);
+            const result = await requestGetComment(selectedMeal.meal_id);
+            setComments(result)
+            setReplyInput(prev => ({ ...prev, [parentId]: "" }));
+            setReplyOpen(prev => ({ ...prev, [parentId]: false }));
+        } catch (error) {
+            alert("대댓글 등록 중 오류가 발생했습니다.");
+        }
     };
 
     useEffect(() => {
@@ -121,7 +145,8 @@ const MealPage = () => {
             }
             try {
                 const result = await requestGetComment(selectedMeal.meal_id);
-                setComments(Array.isArray(result.results) ? result.results : []);
+                console.log("댓글 API 응답:", result); // ← 여기!
+                setComments(result);
             } catch (e) {
                 setComments([]);
             }
@@ -242,6 +267,7 @@ const MealPage = () => {
                                 {comments.length > 0 ? (
                                     comments.map(comment => (
                                         <Card key={comment.id} size={{ initial: "1", sm: "2" }}>
+                                            {/* 기존 댓글 UI */}
                                             <Flex gap="2" align="start">
                                                 <Avatar
                                                     size={{ initial: "2", sm: "3" }}
@@ -268,8 +294,57 @@ const MealPage = () => {
                                                     }}>
                                                         {comment.content}
                                                     </Text>
+                                                    <Button
+                                                        size="1"
+                                                        variant="ghost"
+                                                        onClick={() => setReplyOpen(prev => ({ ...prev, [comment.id]: !prev[comment.id] }))}
+                                                    >
+                                                        답글
+                                                    </Button>
+                                                    {replyOpen[comment.id] && (
+                                                        <Box mt="2">
+                                                            <TextArea
+                                                                value={replyInput[comment.id] || ""}
+                                                                onChange={e => setReplyInput(prev => ({ ...prev, [comment.id]: e.target.value }))}
+                                                                placeholder="답글을 입력하세요"
+                                                                rows={2}
+                                                            />
+                                                            <Flex justify="end" mt="1">
+                                                                <Button
+                                                                    size="1"
+                                                                    onClick={() => handleReplySubmit(comment.id)}
+                                                                    disabled={!replyInput[comment.id]?.trim()}
+                                                                >
+                                                                    답글 작성
+                                                                </Button>
+                                                            </Flex>
+                                                        </Box>
+                                                    )}
                                                 </Box>
                                             </Flex>
+                                            {/* 대댓글(답글) 목록 렌더링 */}
+                                            {comment.replies && comment.replies.length > 0 && (
+                                                <Box ml="6" mt="2">
+                                                    {comment.replies.map(reply => (
+                                                        <Card key={reply.id} size="1" style={{ background: "#f8f9fa" }}>
+                                                            <Flex gap="2" align="start">
+                                                                <Avatar
+                                                                    size="1"
+                                                                    fallback={reply.author?.name ? reply.author.name.charAt(0).toUpperCase() : "?"}
+                                                                    radius="full"
+                                                                />
+                                                                <Box>
+                                                                    <Flex gap="2" align="center">
+                                                                        <Text size="1" weight="bold">{reply.author?.name || "알 수 없음"}</Text>
+                                                                        <Text size="1" color="gray">{reply.created_at}</Text>
+                                                                    </Flex>
+                                                                    <Text size="2" style={{ wordBreak: "break-word" }}>{reply.content}</Text>
+                                                                </Box>
+                                                            </Flex>
+                                                        </Card>
+                                                    ))}
+                                                </Box>
+                                            )}
                                         </Card>
                                     ))
                                 ) : (
