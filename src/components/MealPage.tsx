@@ -1,84 +1,30 @@
-import {
-  Avatar,
-  Box,
-  Button,
-  Card,
-  Flex,
-  IconButton,
-  RadioCards,
-  ScrollArea,
-  Text,
-  TextArea,
-} from "@radix-ui/themes";
+import { Avatar, Box, Button, Card, Flex, IconButton, RadioCards, ScrollArea, Text, TextArea } from "@radix-ui/themes";
 import { useEffect, useRef, useState } from "react";
-import { requestGetDailyMeal } from "../api";
+import { requestGetDailyMeal, requestComment, requestGetComment } from "../api";
 import { Meal } from "../types";
 import MealInfo from "./MealInfo";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import Header from "./Header";
 import LogoutButton from "./LogoutButton";
+import { CreateCommentDTO, GetCommentDTO } from "../dtos/comment";
 
 const MealPage = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [hasMeal, setHasMeal] = useState(true);
-  const [selectedMealType, setSelectedMealType] = useState<string>("");
+  const [selectedMeal, setSelectedMeal] = useState<Meal | undefined>(undefined);
   const [commentInput, setCommentInput] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const isLoadingRef = useRef(false);
 
-  const [comments, setComments] = useState<{
-    [key: string]: Array<{
-      id: string;
-      user: string;
-      date: string;
-      content: string;
-    }>;
-  }>({
-    조식: [
-      {
-        id: "1",
-        user: "아침맨",
-        date: "2025-04-16 07:30",
-        content: "오늘 아침밥 정말 맛있었어요. 특히 계란찜이 최고였습니다!",
-      },
-    ],
-    중식: [
-      {
-        id: "2",
-        user: "점심왕",
-        date: "2025-04-16 12:30",
-        content:
-          "오늘 급식 너무 맛있어요! 특히 된장찌개가 집에서 먹는 것처럼 맛있었습니다.",
-      },
-      {
-        id: "3",
-        user: "맛있당",
-        date: "2025-04-16 12:45",
-        content: "후식으로 나온 요구르트도 진짜 맛있었어요!",
-      },
-    ],
-    석식: [
-      {
-        id: "4",
-        user: "저녁별",
-        date: "2025-04-16 18:15",
-        content:
-          "오늘 저녁 메뉴는 조금 아쉬웠네요. 내일은 더 맛있었으면 좋겠어요.",
-      },
-    ],
-  });
+  const [comments, setComments] = useState<GetCommentDTO[]>([]);
+  const [replyInput, setReplyInput] = useState<{ [commentId: number]: string }>({});
+  const [replyOpen, setReplyOpen] = useState<{ [commentId: number]: boolean }>({});
 
   const formatDate = (date: Date) =>
-    date.toISOString().split("T")[0].replace(/-/g, "");
+    date.toISOString().split('T')[0].replace(/-/g, "");
 
   const getDisplayDate = (date: Date) =>
-    date.toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      weekday: "short",
-    });
+    date.toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "short" });
 
   const isWeekend = (date: Date) => {
     const day = date.getDay();
@@ -86,7 +32,7 @@ const MealPage = () => {
   };
 
   const moveDate = (days: number) => {
-    setSelectedDate((prev) => {
+    setSelectedDate(prev => {
       let newDate = new Date(prev);
       do {
         newDate.setDate(newDate.getDate() + days);
@@ -95,38 +41,59 @@ const MealPage = () => {
     });
   };
 
+  // 급식 선택 핸들러
   const handleSelectMeal = (mealName: string) => {
-    setSelectedMealType(mealName);
+    setSelectedMeal(meals.find(meal => meal.name === mealName));
   };
 
-  const handleCommentSubmit = () => {
-    if (!commentInput.trim() || !selectedMealType) return;
+  // 댓글 작성 핸들러
+  const handleCommentSubmit = async () => {
+    if (!commentInput.trim() || !selectedMeal) return;
 
-    // 현재 날짜 및 시간 포맷팅
-    const now = new Date();
-    const formattedDate =
-      now.toISOString().split("T")[0] +
-      " " +
-      now.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
+    // // 현재 날짜 및 시간 포맷팅
+    // const now = new Date();
+    // const formattedDate = now.toISOString().split('T')[0] + " " +
+    //     now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+    //필요 없어보임
 
-    // 새 댓글 객체 생성
-    const newComment = {
-      id: Date.now().toString(), // 임시 ID
-      user: "사용자", // 실제 앱에서는 로그인한 사용자 정보 사용
-      date: formattedDate,
+    // 댓글 생성 요청 본문 구성
+    const createCommentDTO: CreateCommentDTO = {
       content: commentInput,
+      meal_id: selectedMeal.meal_id, // Meal 객체에서 meal_id 사용
+      parent_id: null
     };
 
-    // 선택된 식사 유형의 댓글 목록에 추가
-    setComments((prev) => ({
-      ...prev,
-      [selectedMealType]: [...(prev[selectedMealType] || []), newComment],
-    }));
 
-    // 입력 필드 초기화
+    try {
+      // 서버에 댓글 생성 요청
+      await requestComment(createCommentDTO);
+      const result = await requestGetComment(selectedMeal.meal_id);
+      console.log("댓글 작성 후 응답:", result); // ← 여기!
+      setComments(result);
+    } catch (error) {
+      console.error("댓글 작성 중 오류:", error);
+      alert("댓글을 등록하는 중 문제가 발생했습니다.");
+    }
     setCommentInput("");
+  };
 
-    // 여기에서 실제 API 호출하여 댓글 저장 로직 추가 필요
+  // 대댓글 작성 핸들러
+  const handleReplySubmit = async (parentId: number) => {
+    if (!replyInput[parentId]?.trim() || !selectedMeal) return;
+    const createCommentDTO: CreateCommentDTO = {
+      content: replyInput[parentId],
+      meal_id: selectedMeal.meal_id,
+      parent_id: parentId
+    };
+    try {
+      await requestComment(createCommentDTO);
+      const result = await requestGetComment(selectedMeal.meal_id);
+      setComments(result)
+      setReplyInput(prev => ({ ...prev, [parentId]: "" }));
+      setReplyOpen(prev => ({ ...prev, [parentId]: false }));
+    } catch (error) {
+      alert("대댓글 등록 중 오류가 발생했습니다.");
+    }
   };
 
   useEffect(() => {
@@ -137,13 +104,14 @@ const MealPage = () => {
       setIsLoading(true);
 
       const response = await requestGetDailyMeal({
-        date: formatDate(selectedDate),
+        date: formatDate(selectedDate)
       });
 
       if (!response.ok) {
         console.error("Failed to fetch meals");
         setMeals([]);
         setHasMeal(false);
+        setSelectedMeal(undefined); // 급식 없으면 선택 해제
         setIsLoading(false);
         isLoadingRef.current = false; // 로딩 상태 초기화
         return;
@@ -154,11 +122,12 @@ const MealPage = () => {
       setMeals(mealResults);
       setHasMeal(mealResults.length > 0);
 
+      // 첫 번째 급식을 자동 선택
       if (mealResults.length > 0) {
-        const lunchMeal = mealResults.find((meal) => meal.name === "중식");
-        setSelectedMealType(lunchMeal ? lunchMeal.name : mealResults[0].name);
+        const firstMeal = mealResults.find(meal => ["중식", "조식", "석식"].includes(meal.name)) || mealResults[0];
+        setSelectedMeal(firstMeal);
       } else {
-        setSelectedMealType("");
+        setSelectedMeal(undefined);
       }
 
       setIsLoading(false);
@@ -167,16 +136,29 @@ const MealPage = () => {
 
     fetchData();
   }, [selectedDate]);
-  // 현재 선택된 식사 유형의 댓글만 필터링
-  const currentComments = selectedMealType
-    ? comments[selectedMealType] || []
-    : [];
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      if (!selectedMeal) {
+        setComments([]);
+        return;
+      }
+      try {
+        const result = await requestGetComment(selectedMeal.meal_id);
+        console.log("댓글 API 응답:", result); // ← 여기!
+        setComments(result);
+      } catch (e) {
+        setComments([]);
+      }
+    };
+    fetchComments();
+  }, [selectedMeal]);
 
   // 컨텐츠 영역 공통 너비 스타일
   const contentWidthStyle = {
     width: "min(100%, 900px)",
     maxWidth: "100%",
-    margin: "0 auto",
+    margin: "0 auto"
   };
 
   return (
@@ -188,10 +170,9 @@ const MealPage = () => {
       style={{
         width: "100%",
         maxWidth: "100%",
-        padding: "var(--space-3)",
+        padding: "var(--space-3)"
       }}
     >
-      <Header />
       {/* 날짜 이동 버튼 - 최대 너비 설정 */}
       <Flex
         align="center"
@@ -208,15 +189,11 @@ const MealPage = () => {
         >
           <ChevronLeftIcon />
         </IconButton>
-        <Text
-          weight="bold"
-          size={{ initial: "3", sm: "5" }}
-          style={{
-            textAlign: "center",
-            flex: "1",
-            maxWidth: "60%",
-          }}
-        >
+        <Text weight="bold" size={{ initial: "3", sm: "5" }} style={{
+          textAlign: "center",
+          flex: "1",
+          maxWidth: "60%"
+        }}>
           {getDisplayDate(selectedDate)}
         </Text>
         <IconButton
@@ -232,38 +209,20 @@ const MealPage = () => {
       {/* 급식 정보 표시 */}
       <Box width="100%" style={contentWidthStyle}>
         {isLoading ? (
-          <Flex
-            align="center"
-            justify="center"
-            direction="column"
-            gap="3"
-            py="6"
-          >
-            <Text size={{ initial: "3", sm: "5" }} weight="medium" color="gray">
-              급식 정보를 불러오는 중...
-            </Text>
+          <Flex align="center" justify="center" direction="column" gap="3" py="6">
+            <Text size={{ initial: "3", sm: "5" }} weight="medium" color="gray">급식 정보를 불러오는 중...</Text>
           </Flex>
         ) : !hasMeal || meals.length === 0 ? (
-          <Flex
-            align="center"
-            justify="center"
-            direction="column"
-            gap="3"
-            py="6"
-          >
-            <Text size={{ initial: "3", sm: "5" }} weight="medium" color="gray">
-              급식 정보가 없습니다
-            </Text>
-            <Text size="2" color="gray">
-              해당 날짜에 등록된 급식 정보가 없거나 주말입니다
-            </Text>
+          <Flex align="center" justify="center" direction="column" gap="3" py="6">
+            <Text size={{ initial: "3", sm: "5" }} weight="medium" color="gray">급식 정보가 없습니다</Text>
+            <Text size="2" color="gray">해당 날짜에 등록된 급식 정보가 없거나 주말입니다</Text>
           </Flex>
         ) : (
           <Box style={{ width: "100%", overflowX: "auto" }}>
             <RadioCards.Root
               defaultValue={meals[0]?.name}
-              value={selectedMealType}
-              onValueChange={setSelectedMealType}
+              value={selectedMeal?.name}
+              onValueChange={(name) => handleSelectMeal(name)}
             >
               <Flex
                 direction="row"
@@ -273,7 +232,7 @@ const MealPage = () => {
                 p="2"
                 style={{
                   minWidth: "fit-content",
-                  width: "100%",
+                  width: "100%"
                 }}
               >
                 {meals.map((meal, index) => (
@@ -281,7 +240,7 @@ const MealPage = () => {
                     key={index}
                     meal={meal}
                     index={index}
-                    onSelectMeal={handleSelectMeal}
+                    onSelectMeal={() => handleSelectMeal(meal.name)}
                   />
                 ))}
               </Flex>
@@ -291,28 +250,28 @@ const MealPage = () => {
       </Box>
 
       {/* 댓글 섹션 - 급식 메뉴와 동일한 너비 적용 */}
-      {selectedMealType && (
-        <Box py="3" style={contentWidthStyle}>
+      {selectedMeal && (
+        <Box
+          py="3"
+          style={contentWidthStyle}
+        >
           <Flex direction="column" gap="3" width="100%">
             <Flex justify="between" align="baseline">
-              <Text weight="bold" size={{ initial: "3", sm: "4" }}>
-                {selectedMealType} 댓글
-              </Text>
-              <Text size="1" color="gray">
-                총 {currentComments.length}개의 댓글
-              </Text>
+              <Text weight="bold" size={{ initial: "3", sm: "4" }}>{selectedMeal.name} 댓글</Text>
+              <Text size="1" color="gray">총 {(comments?.length ?? 0)}개의 댓글</Text>
             </Flex>
 
             {/* 댓글 목록 */}
             <ScrollArea style={{ flex: 1 }}>
               <Flex direction="column" gap="2" width="100%">
-                {currentComments.length > 0 ? (
-                  currentComments.map((comment) => (
+                {comments.length > 0 ? (
+                  comments.map(comment => (
                     <Card key={comment.id} size={{ initial: "1", sm: "2" }}>
+                      {/* 기존 댓글 UI */}
                       <Flex gap="2" align="start">
                         <Avatar
                           size={{ initial: "2", sm: "3" }}
-                          fallback={comment.user.charAt(0).toUpperCase()}
+                          fallback={comment.author?.name ? comment.author.name.charAt(0).toUpperCase() : "?"}
                           radius="full"
                         />
                         <Box style={{ flex: 1 }}>
@@ -324,36 +283,73 @@ const MealPage = () => {
                             width="100%"
                           >
                             <Text as="div" size="2" weight="bold">
-                              {comment.user}
+                              {comment.author?.name || "알 수 없음"}
                             </Text>
                             <Text as="div" size="1" color="gray">
-                              {comment.date}
+                              {comment.created_at}
                             </Text>
                           </Flex>
-                          <Text
-                            as="div"
-                            size="2"
-                            mt="1"
-                            style={{
-                              wordBreak: "break-word",
-                            }}
-                          >
+                          <Text as="div" size="2" mt="1" style={{
+                            wordBreak: "break-word"
+                          }}>
                             {comment.content}
                           </Text>
+                          <Button
+                            size="1"
+                            variant="ghost"
+                            onClick={() => setReplyOpen(prev => ({ ...prev, [comment.id]: !prev[comment.id] }))}
+                          >
+                            답글
+                          </Button>
+                          {replyOpen[comment.id] && (
+                            <Box mt="2">
+                              <TextArea
+                                value={replyInput[comment.id] || ""}
+                                onChange={e => setReplyInput(prev => ({ ...prev, [comment.id]: e.target.value }))}
+                                placeholder="답글을 입력하세요"
+                                rows={2}
+                              />
+                              <Flex justify="end" mt="1">
+                                <Button
+                                  size="1"
+                                  onClick={() => handleReplySubmit(comment.id)}
+                                  disabled={!replyInput[comment.id]?.trim()}
+                                >
+                                  답글 작성
+                                </Button>
+                              </Flex>
+                            </Box>
+                          )}
                         </Box>
                       </Flex>
+                      {/* 대댓글(답글) 목록 렌더링 */}
+                      {comment.replies && comment.replies.length > 0 && (
+                        <Box ml="6" mt="2">
+                          {comment.replies.map(reply => (
+                            <Card key={reply.id} size="1" style={{ background: "#f8f9fa" }}>
+                              <Flex gap="2" align="start">
+                                <Avatar
+                                  size="1"
+                                  fallback={reply.author?.name ? reply.author.name.charAt(0).toUpperCase() : "?"}
+                                  radius="full"
+                                />
+                                <Box>
+                                  <Flex gap="2" align="center">
+                                    <Text size="1" weight="bold">{reply.author?.name || "알 수 없음"}</Text>
+                                    <Text size="1" color="gray">{reply.created_at}</Text>
+                                  </Flex>
+                                  <Text size="2" style={{ wordBreak: "break-word" }}>{reply.content}</Text>
+                                </Box>
+                              </Flex>
+                            </Card>
+                          ))}
+                        </Box>
+                      )}
                     </Card>
                   ))
                 ) : (
-                  <Flex
-                    align="center"
-                    justify="center"
-                    direction="column"
-                    p="4"
-                  >
-                    <Text color="gray" size="2">
-                      아직 댓글이 없습니다. 첫 댓글을 남겨보세요!
-                    </Text>
+                  <Flex align="center" justify="center" direction="column" p="4">
+                    <Text color="gray" size="2">아직 댓글이 없습니다. 첫 댓글을 남겨보세요!</Text>
                   </Flex>
                 )}
               </Flex>
@@ -363,7 +359,7 @@ const MealPage = () => {
             <Card size={{ initial: "1", sm: "2" }}>
               <Flex direction="column" gap="2" width="100%">
                 <TextArea
-                  placeholder={`${selectedMealType}에 대한 댓글을 입력해 주세요.`}
+                  placeholder={`${selectedMeal.name}에 대한 댓글을 입력해 주세요.`}
                   style={{ width: "100%" }}
                   value={commentInput}
                   onChange={(e) => setCommentInput(e.target.value)}
@@ -383,10 +379,11 @@ const MealPage = () => {
               </Flex>
             </Card>
           </Flex>
+          <LogoutButton />
         </Box>
       )}
     </Flex>
   );
-};
+}
 
 export default MealPage;

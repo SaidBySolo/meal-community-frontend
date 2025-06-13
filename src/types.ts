@@ -6,6 +6,7 @@ interface PartialSchoolInfo {
 }
 
 interface Meal {
+    meal_id: number;
     name: string;
     dish_name: string;
     calorie: string;
