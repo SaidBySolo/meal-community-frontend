@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Card, Flex, IconButton, RadioCards, Text, TextArea } from "@radix-ui/themes";
+import { Avatar, Box, Button, Card, Flex, IconButton, RadioCards, ScrollArea, Text, TextArea } from "@radix-ui/themes";
 import { useEffect, useRef, useState } from "react";
 import { requestGetDailyMeal } from "../api";
 import { Meal } from "../types";
@@ -151,32 +151,35 @@ const MealPage = () => {
           </Flex>
         ) : (
           <Flex direction="column" style={{ width: "100%", overflowX: "auto" }}>
-            <RadioCards.Root
-              defaultValue={meals[0]?.name}
-              value={selectedMeal?.name}
-              onValueChange={(name) => handleSelectMeal(name)}
-            >
-              <Flex
-                direction="row"
-                gap="3"
-                align="center"
-                justify="center"
-                p="2"
-                style={{
-                  minWidth: "fit-content",
-                  width: "100%"
-                }}
+            <ScrollArea>
+              <RadioCards.Root
+                defaultValue={meals[0]?.name}
+                value={selectedMeal?.name}
+                onValueChange={(name) => handleSelectMeal(name)}
               >
-                {meals.map((meal, index) => (
-                  <MealInfo
-                    key={index}
-                    meal={meal}
-                    index={index}
-                    onSelectMeal={() => handleSelectMeal(meal.name)}
-                  />
-                ))}
-              </Flex>
-            </RadioCards.Root>
+                <Flex
+                  direction="row"
+                  gap="3"
+                  align="center"
+                  justify="center"
+                  p="2"
+                  style={{
+                    minWidth: "fit-content",
+                    width: "100%"
+                  }}
+                >
+                  {meals.map((meal, index) => (
+                    <MealInfo
+                      key={index}
+                      meal={meal}
+                      index={index}
+                      onSelectMeal={() => handleSelectMeal(meal.name)}
+                    />
+                  ))}
+                </Flex>
+              </RadioCards.Root>
+            </ScrollArea>
+
             <Comment meal={selectedMeal} contentWidthStyle={contentWidthStyle} />
           </Flex >
 
