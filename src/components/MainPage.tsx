@@ -4,6 +4,7 @@ import CombinedDialogs from "./CombinedDialogs";
 import MealPage from "./MealPage";
 import { useEffect, useRef, useState } from "react";
 import { requestCheckToken, requestRefresh } from "../api";
+import Header from "./Header";
 
 const MainPage = () => {
   const [isLogin, setIsLogin] = useState(false);
@@ -36,6 +37,7 @@ const MainPage = () => {
         height: "100vh",
       }}
     >
+      <Header />
       {
         isLogin ? <MealPage /> :
           <Flex
