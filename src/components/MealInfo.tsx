@@ -55,7 +55,8 @@ const MealInfo = ({ meal, onSelectMeal }: MealInfoProps) => {
           overflowY: "auto",
           padding: "0.5rem 0",
           display: "flex",
-          flexDirection: "column"
+          flexDirection: "column",
+          pointerEvents: "auto",
         }}>
           {meal.dish_name.split("<br/>").map((dish, idx) => (
             <Flex
