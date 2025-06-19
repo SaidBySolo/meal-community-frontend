@@ -138,9 +138,9 @@ const requestGetComment = async (meal_id: number) => {
     credentials: "include",
   });
   if (response.ok) {
-    return await response.json() as GetCommentDTO[];
+    return await response.json() as { results: GetCommentDTO[] };
   }
-  return [];
+  return { results: [] };
 }
 
 export {

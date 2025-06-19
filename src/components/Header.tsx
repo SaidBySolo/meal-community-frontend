@@ -49,7 +49,6 @@ const Header = () => {
       justify="between"
       px="4"
       style={{
-        backgroundColor: "ghost",
         position: "sticky",
         top: 0,
         zIndex: 1000,
