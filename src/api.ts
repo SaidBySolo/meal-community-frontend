@@ -1,6 +1,7 @@
 import { GetDailyMealDTO } from "./dtos/meal";
 import { CreateUserDTO } from "./dtos/user";
 import { CreateCommentDTO, GetCommentDTO } from "./dtos/comment";
+import { CalorieData } from "./dtos/calorie";
 
 export const API_URL = "http://localhost:8000"
 
@@ -143,6 +144,37 @@ const requestGetComment = async (meal_id: number) => {
   return { results: [] };
 }
 
+// 급식정보 + 사진 요청
+const requestimageasync = async (meal_id: number, image: File) => {
+
+  const formData = new FormData();
+  formData.append('meal_id', meal_id.toString());
+  formData.append('image', image);
+  
+  try {
+    const response = await fetch(API_URL + '/api/calorie/inference', {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
+      },
+      body: formData,
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      return await response.json() as CalorieData;
+    } else {
+      const errorData = await response.json();
+      console.error('API Error:', errorData.error);
+      return null;
+    }
+  } catch (error) {
+    console.error('Fetch failed:', error);
+    return null;
+  }
+}
+
+
 export {
   requestLogin,
   requestRegister,
@@ -154,4 +186,5 @@ export {
   requestComment,
   requestGetComment,
   requestMe,
+  requestimageasync
 }
