@@ -1,10 +1,13 @@
 import { Avatar, Box, Button, Card, Flex, IconButton, RadioCards, ScrollArea, Text, TextArea } from "@radix-ui/themes";
 import { useEffect, useRef, useState } from "react";
-import { requestGetDailyMeal } from "../api";
+import { requestGetDailyMeal,requestimageasync } from "../api";
 import { Meal } from "../types";
 import MealInfo from "./MealInfo";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import Comment from "./Comment";
+
+// 칼로리
+import { CalorieData, CalorieInfo } from "../dtos/calorie";
 
 const MealPage = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
@@ -70,6 +73,41 @@ const MealPage = () => {
 
     fetchData();
   }, [selectedDate]);
+
+  // 칼로리 변수
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [calorieData, setCalorieData] = useState<CalorieData | null>(null);
+  const [isCalorieLoading, setIsCalorieLoading] = useState(false);
+  const [calorieError, setCalorieError] = useState<string | null>(null);
+
+  // 칼로리 핸들러
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedImage(e.target.files[0]);
+      setCalorieData(null);
+      setCalorieError(null);
+    }
+  };
+
+const handleCalorieSubmit = async () => {
+    if (!selectedMeal || !selectedImage) {
+      setCalorieError("먼저 급식을 선택하고 이미지를 업로드해주세요.");
+      return;
+    }
+
+    setIsCalorieLoading(true);
+    setCalorieError(null);
+
+    const data = await requestimageasync(selectedMeal.meal_id, selectedImage);
+
+    if (data) {
+      setCalorieData(data);
+    } else {
+      setCalorieError("칼로리 분석에 실패했습니다. 다시 시도해 주세요.");
+    }
+    
+    setIsCalorieLoading(false);
+  };
 
   // 컨텐츠 영역 공통 너비 스타일
   const contentWidthStyle = {
@@ -184,6 +222,48 @@ const MealPage = () => {
           </Flex >
 
         )}
+      </Box>
+      <Box width="100%" style={contentWidthStyle}>
+        <Card size="2" my="4">
+          <Flex direction="column" gap="3">
+            <Text size="5" weight="bold">칼로리 분석</Text>
+
+            {/* 파일 입력 필드 */}
+            <input type="file" accept="image/*" onChange={handleFileChange} />
+
+            {/* 분석 시작 버튼 */}
+            <Button
+              onClick={handleCalorieSubmit}
+              disabled={!selectedMeal || !selectedImage || isCalorieLoading}
+              size="3"
+            >
+              {isCalorieLoading ? "분석 중..." : "이미지 분석 시작"}
+            </Button>
+
+            {/* 오류 메시지 표시 */}
+            {calorieError && (
+              <Text color="red" size="2">
+                {calorieError}
+              </Text>
+            )}
+
+            {/* 칼로리 분석 결과 표시 */}
+            {calorieData && (
+              <Box mt="3">
+                <Text size="4" weight="bold">분석 결과</Text>
+                <Text as="p">총 칼로리: {calorieData.total_calories}</Text>
+                <ul>
+                  {calorieData.meals.map((meal, index) => (
+                    <li key={index}>
+                      <Text as="span" weight="bold">{meal.name}:</Text>{" "}
+                      {meal.calories ? `${meal.calories} kcal` : "정보 없음"}
+                    </li>
+                  ))}
+                </ul>
+              </Box>
+            )}
+          </Flex>
+        </Card>
       </Box>
     </Flex>
   );
