@@ -21,7 +21,9 @@ async function fetchWithAuthRetry(input: RequestInfo, init?: RequestInit) {
       if (response.status !== 401) return response;
     }
     // 갱신 실패 또는 재요청도 401 → 로그인 페이지로 이동
-    window.location.href = "/login";
+    window.location.href = "/";
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     throw new Error("인증이 필요합니다. 다시 로그인해주세요.");
   }
   return response;
