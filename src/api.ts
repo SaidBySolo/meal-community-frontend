@@ -5,6 +5,28 @@ import { CalorieData } from "./dtos/calorie";
 
 export const API_URL = "http://localhost:8000"
 
+// 인증이 필요한 fetch 래퍼
+async function fetchWithAuthRetry(input: RequestInfo, init?: RequestInit) {
+  let response = await fetch(input, init);
+
+  if (response.status === 401) {
+    // 토큰 갱신 시도
+    const refreshed = await requestRefresh();
+    if (refreshed) {
+      // 토큰 갱신 성공 → Authorization 헤더 갱신 후 재요청
+      if (init?.headers && typeof init.headers === "object") {
+        (init.headers as any)["Authorization"] = `Bearer ${localStorage.getItem("access_token")}`;
+      }
+      response = await fetch(input, init);
+      if (response.status !== 401) return response;
+    }
+    // 갱신 실패 또는 재요청도 401 → 로그인 페이지로 이동
+    window.location.href = "/login";
+    throw new Error("인증이 필요합니다. 다시 로그인해주세요.");
+  }
+  return response;
+}
+
 const requestLogin = async (email: string, password: string) => {
   const response = await fetch(API_URL + "/api/user/login", {
     method: "POST",
@@ -31,18 +53,6 @@ const requestRegister = async (createUserDto: CreateUserDTO) => {
 
   return response
 }
-
-const requestSearchSchool = async (schoolName: string) => {
-  const response = await fetch(API_URL + '/api/school/search', {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ name: schoolName }),
-  });
-  return response;
-}
-
 const requestRefresh = async () => {
   const response = await fetch(API_URL + "/api/user/refresh", {
     method: "POST",
@@ -57,21 +67,6 @@ const requestRefresh = async () => {
     return true
   }
   return false
-}
-
-
-const requestGetDailyMeal = async (getDailyMealDTO: GetDailyMealDTO) => {
-  const response = await fetch(API_URL + '/api/meal/daily', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
-    },
-    body: JSON.stringify({
-      date: getDailyMealDTO.date
-    }),
-  })
-  return response
 }
 
 const requestCheckToken = async () => {
@@ -94,8 +89,33 @@ const requestLogout = async () => {
   return response;
 }
 
+
+const requestSearchSchool = async (schoolName: string) => {
+  const response = await fetch(API_URL + '/api/school/search', {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name: schoolName }),
+  });
+  return response;
+}
+
+const requestGetDailyMeal = async (getDailyMealDTO: GetDailyMealDTO) => {
+  const response = await fetchWithAuthRetry(API_URL + '/api/meal/daily', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
+    },
+    body: JSON.stringify({
+      date: getDailyMealDTO.date
+    }),
+  });
+  return response;
+}
 const requestComment = async (createCommentDto: CreateCommentDTO) => {
-  const response = await fetch(API_URL + '/api/comment/write', {
+  const response = await fetchWithAuthRetry(API_URL + '/api/comment/write', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -104,20 +124,12 @@ const requestComment = async (createCommentDto: CreateCommentDTO) => {
     body: JSON.stringify(createCommentDto),
     credentials: 'include',
   });
-  // 서버로부터 응답이 성공적이면 JSON 형태로 응답을 반환
-  console.log("보내는 DTO:", JSON.stringify(createCommentDto, null, 2));
-
-  console.log("보내는 데이터:", createCommentDto);
-  console.log("응답 상태:", response.status);
   if (response.ok) {
     return await response.json();
   }
-  const errorText = await response.text();
-  console.error("댓글 작성 실패", response.status, errorText);
-  throw new Error(`Failed to create comment: ${response.status} ${errorText}`);
 }
 const requestMe = async () => {
-  const response = await fetch(API_URL + "/api/user/me", {
+  const response = await fetchWithAuthRetry(API_URL + "/api/user/me", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -125,17 +137,16 @@ const requestMe = async () => {
     },
     credentials: "include",
   });
-  return response
+  return response;
 }
 
 const requestGetComment = async (meal_id: number) => {
-  const response = await fetch(API_URL + `/api/comment/${meal_id}`, {
+  const response = await fetchWithAuthRetry(API_URL + `/api/comment/${meal_id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
     },
-
     credentials: "include",
   });
   if (response.ok) {
@@ -146,13 +157,12 @@ const requestGetComment = async (meal_id: number) => {
 
 // 급식정보 + 사진 요청
 const requestimageasync = async (meal_id: number, image: File) => {
-
   const formData = new FormData();
   formData.append('meal_id', meal_id.toString());
   formData.append('image', image);
-  
+
   try {
-    const response = await fetch(API_URL + '/api/calorie/inference', {
+    const response = await fetchWithAuthRetry(API_URL + '/api/calorie/inference', {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
