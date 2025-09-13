@@ -1,4 +1,4 @@
-import { Box, Flex } from "@radix-ui/themes"
+import { Box, Flex } from "@radix-ui/themes";
 
 import CombinedDialogs from "./CombinedDialogs";
 import MealPage from "./MealPage";
@@ -25,6 +25,7 @@ const MainPage = () => {
             }
             checkToken();
         }
+<<<<<<< Updated upstream
         return () => {
             effectRan.current = true;
         }
@@ -55,5 +56,53 @@ const MainPage = () => {
         </Box>
     )
 }
+=======
+      };
+      checkToken();
+    }
+    return () => {
+      effectRan.current = true;
+    };
+  }, []);
 
-export default MainPage
+  return (
+    <Box
+      style={{
+        height: "100vh",
+      }}
+    >
+      <Header />
+      {isLogin ? (
+        <MealPage />
+      ) : (
+        <Flex
+          direction="column"
+          align="center"
+          justify="center"
+          style={{
+            height: "100%",
+          }}
+        >
+          <img
+            src="./public/meal.png"
+            alt="meal"
+            style={{
+              width: "40%",
+              maxWidth: "300px",
+              height: "auto",
+              maxHeight: "300px",
+              marginTop: "1rem",
+              marginBottom: "50px",
+            }}
+          />
+          <h1>오늘의 급식은?</h1>
+
+          <CombinedDialogs />
+        </Flex>
+      )}
+    </Box>
+  );
+};
+>>>>>>> Stashed changes
+
+export default MainPage;

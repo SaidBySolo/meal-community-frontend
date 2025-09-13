@@ -10,7 +10,11 @@ import { ExitIcon, HamburgerMenuIcon, PersonIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import LogoutButton from "./LogoutButton";
 import { requestMe } from "../api";
+<<<<<<< Updated upstream
 import MyDialog from "./MyDialog";
+=======
+import Sidebar from "./Sidebar";
+>>>>>>> Stashed changes
 
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -45,6 +49,7 @@ const Header = () => {
   }, []);
 
   return (
+<<<<<<< Updated upstream
     <Flex
       height="4.5rem"
       align="center"
@@ -118,6 +123,89 @@ const Header = () => {
         userEmail={userEmail}
       />
     </Flex>
+=======
+    <>
+      {isLoggedIn && (
+        <Sidebar open={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      )}
+      <Flex
+        height="4.5rem"
+        align="center"
+        justify="between"
+        px="4"
+        style={{
+          backgroundColor: "var(--color-background)",
+          position: "sticky",
+          top: 0,
+          zIndex: 1000,
+          width: "100%",
+        }}
+      >
+        {/* 로고 및 햄버거 메뉴 */}
+        <Flex align="center" gap="7">
+          {isLoggedIn && (
+            <IconButton
+              variant="ghost"
+              color="gray"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <HamburgerMenuIcon width={24} height={24} />
+            </IconButton>
+          )}
+
+          <Flex align="center" gap="2" style={{ cursor: "pointer" }}>
+            <img
+              src="/meal.png"
+              alt="급식 로고"
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "6px",
+              }}
+            />
+            <Text weight="bold" size="4" style={{ color: "#FF6B6B" }}>
+              오늘의 급식
+            </Text>
+          </Flex>
+        </Flex>
+
+        {/* 사용자 정보 및 메뉴 */}
+        {isLoggedIn ? (
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger>
+              <Button variant="soft" color="gray">
+                <Flex align="center" gap="2">
+                  <Avatar
+                    size="1"
+                    fallback={userName.charAt(0).toUpperCase()}
+                    color="gray"
+                  />
+                  <Text size="2">{userName}</Text>
+                </Flex>
+              </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content>
+              <DropdownMenu.Item>
+                <Flex align="center" gap="2">
+                  <PersonIcon />
+                  <Text size="2">내 정보</Text>
+                </Flex>
+              </DropdownMenu.Item>
+              <DropdownMenu.Separator />
+              <DropdownMenu.Item color="red">
+                <Flex align="center" gap="2">
+                  <ExitIcon />
+                  <LogoutButton />
+                </Flex>
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+        ) : (
+          <Text size="2" color="gray"></Text>
+        )}
+      </Flex>
+    </>
+>>>>>>> Stashed changes
   );
 };
 

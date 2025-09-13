@@ -15,7 +15,12 @@ import { requestGetDailyMeal } from "../api";
 import { Meal } from "../types";
 import MealInfo from "./MealInfo";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
+<<<<<<< Updated upstream
 import Header from "./Header";
+=======
+import Comment from "./Comment";
+import CalorieAnalysisDialog from "./CalorieAnalysisDialog";
+>>>>>>> Stashed changes
 
 const MealPage = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
@@ -24,6 +29,7 @@ const MealPage = () => {
   const [selectedMealType, setSelectedMealType] = useState<string>("");
   const [commentInput, setCommentInput] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+<<<<<<< Updated upstream
   const isLoadingRef = useRef(false);
 
   const [comments, setComments] = useState<{
@@ -67,6 +73,9 @@ const MealPage = () => {
       },
     ],
   });
+=======
+  const [isCalorieDialogOpen, setIsCalorieDialogOpen] = useState(false);
+>>>>>>> Stashed changes
 
   const formatDate = (date: Date) =>
     date.toISOString().split("T")[0].replace(/-/g, "");
@@ -95,6 +104,7 @@ const MealPage = () => {
   };
 
   const handleSelectMeal = (mealName: string) => {
+<<<<<<< Updated upstream
     setSelectedMealType(mealName);
   };
 
@@ -126,6 +136,9 @@ const MealPage = () => {
     setCommentInput("");
 
     // 여기에서 실제 API 호출하여 댓글 저장 로직 추가 필요
+=======
+    setSelectedMeal(meals.find((meal) => meal.name === mealName) || null);
+>>>>>>> Stashed changes
   };
 
   useEffect(() => {
@@ -154,8 +167,13 @@ const MealPage = () => {
       setHasMeal(mealResults.length > 0);
 
       if (mealResults.length > 0) {
+<<<<<<< Updated upstream
         const lunchMeal = mealResults.find((meal) => meal.name === "중식");
         setSelectedMealType(lunchMeal ? lunchMeal.name : mealResults[0].name);
+=======
+        const firstMeal = mealResults.filter((meal) => meal.name == "중식")[0];
+        setSelectedMeal(firstMeal);
+>>>>>>> Stashed changes
       } else {
         setSelectedMealType("");
       }
@@ -166,10 +184,13 @@ const MealPage = () => {
 
     fetchData();
   }, [selectedDate]);
+<<<<<<< Updated upstream
   // 현재 선택된 식사 유형의 댓글만 필터링
   const currentComments = selectedMealType
     ? comments[selectedMealType] || []
     : [];
+=======
+>>>>>>> Stashed changes
 
   // 컨텐츠 영역 공통 너비 스타일
   const contentWidthStyle = {
@@ -275,6 +296,7 @@ const MealPage = () => {
                   width: "100%",
                 }}
               >
+<<<<<<< Updated upstream
                 {meals.map((meal, index) => (
                   <MealInfo
                     key={index}
@@ -384,6 +406,56 @@ const MealPage = () => {
           </Flex>
         </Box>
       )}
+=======
+                <Flex
+                  direction="row"
+                  gap="3"
+                  align="center"
+                  justify="center"
+                  p="2"
+                  style={{
+                    minWidth: "fit-content",
+                    width: "100%",
+                  }}
+                >
+                  {meals.map((meal, index) => (
+                    <MealInfo
+                      key={index}
+                      meal={meal}
+                      index={index}
+                      onSelectMeal={() => handleSelectMeal(meal.name)}
+                    />
+                  ))}
+                </Flex>
+              </RadioCards.Root>
+            </ScrollArea>
+
+            <Flex justify="center" my="3">
+              <Button
+                onClick={() => setIsCalorieDialogOpen(true)}
+                disabled={!selectedMeal}
+                size="3"
+              >
+                <Text weight="bold">
+                  {selectedMeal ? `${selectedMeal.name} ` : ""}칼로리 분석하기
+                </Text>
+              </Button>
+            </Flex>
+
+            <Comment
+              meal={selectedMeal}
+              contentWidthStyle={contentWidthStyle}
+            />
+          </Flex>
+        )}
+      </Box>
+
+      <CalorieAnalysisDialog
+        open={isCalorieDialogOpen}
+        onOpenChange={setIsCalorieDialogOpen}
+        selectedMeal={selectedMeal}
+      />
+>>>>>>> Stashed changes
     </Flex>
   );
 };
