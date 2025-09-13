@@ -1,4 +1,4 @@
-import { Box, Flex } from "@radix-ui/themes"
+import { Box, Flex } from "@radix-ui/themes";
 
 import CombinedDialogs from "./CombinedDialogs";
 import MealPage from "./MealPage";
@@ -31,6 +31,7 @@ const MainPage = () => {
     }
   }, [])
 
+
   return (
     <Box
       style={{
@@ -58,4 +59,4 @@ const MainPage = () => {
   )
 }
 
-export default MainPage
+export default MainPage;
