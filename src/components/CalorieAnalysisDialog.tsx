@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Box, Button, Dialog, Flex, Text } from "@radix-ui/themes";
-import { requestimageasync } from "../api";
+import { requestInferenceCalorie } from "../api";
 import { CalorieData } from "../dtos/calorie";
 import { Meal } from "../types";
 
@@ -37,7 +37,7 @@ const CalorieAnalysisDialog = ({
     setIsCalorieLoading(true);
     setCalorieError(null);
 
-    const data = await requestimageasync(selectedMeal.meal_id, selectedImage);
+    const data = await requestInferenceCalorie(selectedMeal.meal_id, selectedImage);
 
     if (data) {
       setCalorieData(data);

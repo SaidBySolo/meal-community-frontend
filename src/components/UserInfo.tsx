@@ -18,7 +18,6 @@ const UserInfoDialog = ({ open, onOpenChange, user }: UserInfoDialogProps) => {
           size="2"
           mb="4"
         >
-          회원님의 정보입니다.
         </Dialog.Description>
         <Flex direction="column" gap="2">
           <Flex direction="column" gap="1">

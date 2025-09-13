@@ -158,7 +158,7 @@ const requestGetComment = async (meal_id: number) => {
 }
 
 // 급식정보 + 사진 요청
-const requestimageasync = async (meal_id: number, image: File) => {
+const requestInferenceCalorie = async (meal_id: number, image: File) => {
   const formData = new FormData();
   formData.append('meal_id', meal_id.toString());
   formData.append('image', image);
@@ -186,6 +186,18 @@ const requestimageasync = async (meal_id: number, image: File) => {
   }
 }
 
+const requestWeeklyTimetable = async (date: string) => {
+  const response = await fetchWithAuthRetry(API_URL + "/api/timetable/weekly", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
+    },
+    body: JSON.stringify({ date }),
+    credentials: "include",
+  });
+  return response;
+};
 
 export {
   requestLogin,
@@ -198,5 +210,6 @@ export {
   requestComment,
   requestGetComment,
   requestMe,
-  requestimageasync
+  requestInferenceCalorie,
+  requestWeeklyTimetable
 }

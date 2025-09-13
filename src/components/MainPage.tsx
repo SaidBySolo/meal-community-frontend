@@ -1,10 +1,10 @@
 import { Box, Flex } from "@radix-ui/themes";
 
 import CombinedDialogs from "./CombinedDialogs";
-import MealPage from "./MealPage";
 import { useEffect, useRef, useState } from "react";
 import { requestCheckToken, requestRefresh } from "../api";
 import Header from "./Header";
+import CombinedPage from "./CombinedPage";
 
 const MainPage = () => {
   const [isLogin, setIsLogin] = useState(false);
@@ -40,7 +40,7 @@ const MainPage = () => {
     >
       <Header />
       {
-        isLogin ? <MealPage /> :
+        isLogin ? <CombinedPage /> :
           <Flex
             direction="column"
             align="center"

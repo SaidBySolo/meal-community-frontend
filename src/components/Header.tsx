@@ -1,15 +1,16 @@
 import {
   Avatar,
+  Box,
   Button,
   DropdownMenu,
   Flex,
   IconButton,
+  TabNav,
   Text,
 } from "@radix-ui/themes";
 import { ExitIcon, HamburgerMenuIcon, PersonIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
-import LogoutButton from "./LogoutButton";
-import { requestLogout, requestMe, requestWeeklyTimetable } from "../api";
+import { requestLogout, requestMe } from "../api";
 import UserInfoDialog from "./UserInfo";
 import { User } from "../dtos/user";
 
@@ -67,7 +68,6 @@ const Header = () => {
         px="4"
         style={{
           backgroundColor: "var(--color-background)",
-          borderBottom: "1px solid var(--gray-7)",
           position: "sticky",
           top: 0,
           zIndex: 1000,
@@ -86,9 +86,11 @@ const Header = () => {
                 borderRadius: "6px",
               }}
             />
-            <Text weight="bold" size="4" style={{ color: "#FF6B6B" }}>
-              오늘의 급식
-            </Text>
+            <Box display={{ initial: "none", sm: "block" }}>
+              <Text weight="bold" size="4" style={{ color: "#FF6B6B" }} >
+                오늘의 급식
+              </Text>
+            </Box>
           </Flex>
         </Flex>
 
@@ -99,7 +101,9 @@ const Header = () => {
               <Button variant="soft" color="gray">
                 <Flex align="center" gap="2">
                   <PersonIcon />
-                  <Text size="2">{user?.name}</Text>
+                  <Box display={{ initial: "none", sm: "block" }}>
+                    <Text size="2">{user?.name}</Text>
+                  </Box>
                 </Flex>
               </Button>
             </DropdownMenu.Trigger>
@@ -121,7 +125,7 @@ const Header = () => {
           </DropdownMenu.Root>
         )}
 
-      </Flex>
+      </Flex >
     </>
 
   );
