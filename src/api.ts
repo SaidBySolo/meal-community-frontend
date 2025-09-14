@@ -4,7 +4,7 @@ import { CreateCommentDTO, GetCommentDTO } from "./dtos/comment";
 import { CalorieData } from "./dtos/calorie";
 import { Timetable } from "./dtos/timetable";
 
-export const API_URL = "http://localhost:8000"
+export const API_URL = "https://meal.solo.moe"
 
 // 인증이 필요한 fetch 래퍼
 async function fetchWithAuthRetry(input: RequestInfo, init?: RequestInit) {
