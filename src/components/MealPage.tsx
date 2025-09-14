@@ -1,13 +1,10 @@
 import { Box, Flex, IconButton, RadioCards, ScrollArea, Text } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
-import { requestGetDailyMeal, requestInferenceCalorie } from "../api";
+import { requestGetDailyMeal } from "../api";
 import { Meal } from "../types";
 import MealInfo from "./MealInfo";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import Comment from "./Comment";
-
-// 칼로리
-import { CalorieData } from "../dtos/calorie";
 
 const MealPage = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
@@ -74,40 +71,6 @@ const MealPage = () => {
     fetchData();
   }, [selectedDate]);
 
-  // 칼로리 변수
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [calorieData, setCalorieData] = useState<CalorieData | null>(null);
-  const [isCalorieLoading, setIsCalorieLoading] = useState(false);
-  const [calorieError, setCalorieError] = useState<string | null>(null);
-
-  // 칼로리 핸들러
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setSelectedImage(e.target.files[0]);
-      setCalorieData(null);
-      setCalorieError(null);
-    }
-  };
-
-  const handleCalorieSubmit = async () => {
-    if (!selectedMeal || !selectedImage) {
-      setCalorieError("먼저 급식을 선택하고 이미지를 업로드해주세요.");
-      return;
-    }
-
-    setIsCalorieLoading(true);
-    setCalorieError(null);
-
-    const data = await requestInferenceCalorie(selectedMeal.meal_id, selectedImage);
-
-    if (data) {
-      setCalorieData(data);
-    } else {
-      setCalorieError("칼로리 분석에 실패했습니다. 다시 시도해 주세요.");
-    }
-
-    setIsCalorieLoading(false);
-  };
 
   // 컨텐츠 영역 공통 너비 스타일
   const contentWidthStyle = {
