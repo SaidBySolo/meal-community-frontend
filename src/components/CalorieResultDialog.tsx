@@ -42,8 +42,7 @@ const CalorieResultDialog = ({
               <Box mt="2">
                 {calorieData.total_calories === 0 ?
                   <Flex>
-                    <Text size="2">제공된 이미지에서 칼로리 정보를 찾을 수 없습니다.</Text>
-                    <Text size="2" mt="2">다른 사진으로 다시 시도해 주세요.</Text>
+                    <Text color="red" size="2">제공된 이미지에서 칼로리 정보를 찾을 수 없습니다.<br />다른 사진으로 다시 시도해 주세요.</Text>
                   </Flex> : (
                     calorieData.meals.map((item, index) => (
                       <Flex key={index} justify="between">
