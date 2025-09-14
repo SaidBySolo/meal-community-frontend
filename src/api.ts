@@ -163,28 +163,24 @@ const requestInferenceCalorie = async (meal_id: number, image: File) => {
   formData.append('meal_id', meal_id.toString());
   formData.append('image', image);
 
-  try {
-    const response = await fetchWithAuthRetry(API_URL + '/api/calorie/inference', {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
-      },
-      body: formData,
-      credentials: "include",
-    });
 
-    if (response.ok) {
-      return await response.json() as CalorieData;
-    } else {
-      const errorData = await response.json();
-      console.error('API Error:', errorData.error);
-      return null;
-    }
-  } catch (error) {
-    console.error('Fetch failed:', error);
-    return null;
+  const response = await fetchWithAuthRetry(API_URL + '/api/calorie/inference', {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
+    },
+    body: formData,
+    credentials: "include",
+  });
+
+  if (response.ok) {
+    return await response.json() as CalorieData;
   }
+  return {
+    meals: [], total_calories: 0
+  } as CalorieData
 }
+
 
 const requestWeeklyTimetable = async (date: string) => {
   const response = await fetchWithAuthRetry(API_URL + "/api/timetable/weekly", {

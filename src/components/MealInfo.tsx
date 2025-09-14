@@ -1,5 +1,9 @@
-import { Box, Flex, RadioCards, Text } from "@radix-ui/themes";
+import { Box, Button, Flex, RadioCards, Text } from "@radix-ui/themes";
 import { Meal } from "../types";
+import { useState } from "react";
+import { requestInferenceCalorie } from "../api";
+import CalorieResultDialog from "./CalorieResultDialog";
+import { CalorieData } from "../dtos/calorie";
 
 interface MealInfoProps {
   meal: Meal;
@@ -8,106 +12,155 @@ interface MealInfoProps {
 }
 
 const MealInfo = ({ meal, onSelectMeal }: MealInfoProps) => {
+  const [isCalorieLoading, setIsCalorieLoading] = useState(false);
+  const [openCalorieDialog, setOpenCalorieDialog] = useState(false);
+  const [calorieData, setCalorieData] = useState<CalorieData | null>(null);
+
+
+
   const handleSelect = () => {
     if (onSelectMeal) {
       onSelectMeal(meal.name);
     }
   };
 
-  return (
-    <RadioCards.Item
-      value={meal.name}
-      onClick={handleSelect}
-      style={{
-        width: "clamp(250px, 30vw, 300px)",
-        aspectRatio: "4/5",
-        margin: "0.5rem",
-        padding: "0.5rem",
-        boxSizing: "border-box",
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "column"
-      }}
-    >
-      <Flex direction="column" style={{ height: "100%", width: "100%" }}>
-        {/* 식사 유형 헤더 */}
-        <Box style={{
-          padding: "0.5rem",
-          borderBottom: "1px solid var(--gray-5)",
-          backgroundColor: "var(--gray-2)",
-          borderRadius: "0.25rem"
-        }}>
-          <Text
-            weight="bold"
-            size={{ initial: "3", sm: "4" }}
-            style={{
-              textAlign: "center",
-              color: "var(--gray-12)"
-            }}
-          >
-            {meal.name}
-          </Text>
-        </Box>
+  const handleCalorieSubmit = async (image: File) => {
+    setIsCalorieLoading(true);
+    setOpenCalorieDialog(true);
+    
+    const data = await requestInferenceCalorie(meal.meal_id, image);
+    if (data) {
+      setCalorieData(data);
+    } else {
+      setCalorieData(null);
+    }
+    setIsCalorieLoading(false);
+  };
 
-        {/* 메뉴 목록 - 내부 레이아웃 꽉 차게 수정 */}
-        <Box style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: "0.5rem 0",
+
+  return (
+    <>
+      <CalorieResultDialog
+        open={openCalorieDialog}
+        onOpenChange={setOpenCalorieDialog}
+        setCalorieData={setCalorieData}
+        calorieData={calorieData}
+        isLoading={isCalorieLoading}
+      />
+      <RadioCards.Item
+        value={meal.name}
+        onClick={handleSelect}
+        style={{
+          width: "clamp(250px, 30vw, 300px)",
+          aspectRatio: "4/5",
+          margin: "0.5rem",
+          padding: "0.5rem",
+          boxSizing: "border-box",
+          overflow: "hidden",
           display: "flex",
-          flexDirection: "column",
-          pointerEvents: "auto",
-        }}>
-          {meal.dish_name.split("<br/>").map((dish, idx) => (
-            <Flex
-              key={idx}
-              align="start"
+          flexDirection: "column"
+        }}
+      >
+        <Flex direction="column" style={{ height: "100%", width: "100%" }}>
+          {/* 식사 유형 헤더 */}
+          <Box style={{
+            padding: "0.5rem",
+            borderBottom: "1px solid var(--gray-5)",
+            backgroundColor: "var(--gray-2)",
+            borderRadius: "0.25rem"
+          }}>
+            <Text
+              weight="bold"
+              size={{ initial: "3", sm: "4" }}
               style={{
-                padding: "0.25rem 0.5rem",
-                borderBottom: idx < meal.dish_name.split("<br/>").length - 1 ? "1px dashed var(--gray-4)" : "none",
-                width: "100%"
+                textAlign: "center",
+                color: "var(--gray-12)"
+              }}
+            >
+              {meal.name}
+            </Text>
+          </Box>
+
+          {/* 메뉴 목록 - 내부 레이아웃 꽉 차게 수정 */}
+          <Box style={{
+            flex: 1,
+            overflowY: "auto",
+            padding: "0.5rem 0",
+            display: "flex",
+            flexDirection: "column",
+            pointerEvents: "auto",
+          }}>
+            {meal.dish_name.split("<br/>").map((dish, idx) => (
+              <Flex
+                key={idx}
+                align="start"
+                style={{
+                  padding: "0.25rem 0.5rem",
+                  borderBottom: idx < meal.dish_name.split("<br/>").length - 1 ? "1px dashed var(--gray-4)" : "none",
+                  width: "100%"
+                }}
+              >
+                <Text
+                  size={{ initial: "2", sm: "2" }}
+                  style={{
+                    lineHeight: "1.5",
+                    wordBreak: "break-word",
+                    width: "100%",
+                    display: "block",
+                    padding: "0"
+                  }}
+                >
+                  {dish.trim()}
+                </Text>
+              </Flex>
+            ))}
+          </Box>
+
+          {/* 칼로리 정보 */}
+          {meal.calorie && (
+            <Flex
+              justify="between"
+              align="center"
+              style={{
+                marginTop: "auto",
+                padding: "0.5rem",
+                borderTop: "1px solid var(--gray-5)",
+                backgroundColor: "var(--gray-1)",
+                borderRadius: "0.25rem",
+                pointerEvents: "auto",
               }}
             >
               <Text
-                size={{ initial: "2", sm: "2" }}
+                size="1"
+                color="gray"
                 style={{
-                  lineHeight: "1.5",
-                  wordBreak: "break-word",
-                  width: "100%",
-                  display: "block",
-                  padding: "0"
+                  textAlign: "right"
                 }}
               >
-                {dish.trim()}
+                칼로리: {meal.calorie || "정보 없음"}
               </Text>
+              <label>
+                <Button variant="soft" asChild>
+                  <span>칼로리 계산</span>
+                </Button>
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      await handleCalorieSubmit(file);
+                    }
+                    e.target.value = "";
+                  }}
+                />
+              </label>
             </Flex>
-          ))}
-        </Box>
-
-        {/* 칼로리 정보 */}
-        {meal.calorie && (
-          <Box
-            style={{
-              marginTop: "auto",
-              padding: "0.5rem",
-              borderTop: "1px solid var(--gray-5)",
-              backgroundColor: "var(--gray-1)",
-              borderRadius: "0.25rem"
-            }}
-          >
-            <Text
-              size="1"
-              color="gray"
-              style={{
-                textAlign: "right"
-              }}
-            >
-              칼로리: {meal.calorie || "정보 없음"}
-            </Text>
-          </Box>
-        )}
-      </Flex>
-    </RadioCards.Item>
+          )}
+        </Flex>
+      </RadioCards.Item>
+    </>
   );
 };
 

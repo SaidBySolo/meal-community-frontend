@@ -1,17 +1,17 @@
 
 interface CalorieInfo {
-    name: string;
-    calories: string | null;
+  name: string;
+  calories: string | null;
 
 }
 
 interface CalorieData {
-    meals: CalorieInfo[];
-  total_calories: string;
+  meals: CalorieInfo[];
+  total_calories: number;
 }
 
 export type {
-    CalorieData,
-    CalorieInfo
+  CalorieData,
+  CalorieInfo
 }
 

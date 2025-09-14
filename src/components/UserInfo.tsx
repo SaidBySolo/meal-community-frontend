@@ -1,5 +1,4 @@
 import { Button, Dialog, Flex, Text, } from "@radix-ui/themes";
-import { useState } from "react";
 import { User } from "../dtos/user";
 
 interface UserInfoDialogProps {

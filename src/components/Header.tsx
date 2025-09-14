@@ -1,14 +1,12 @@
 import {
-  Avatar,
   Box,
   Button,
   DropdownMenu,
   Flex,
-  IconButton,
-  TabNav,
+
   Text,
 } from "@radix-ui/themes";
-import { ExitIcon, HamburgerMenuIcon, PersonIcon } from "@radix-ui/react-icons";
+import { ExitIcon, PersonIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import { requestLogout, requestMe } from "../api";
 import UserInfoDialog from "./UserInfo";

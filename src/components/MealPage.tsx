@@ -1,6 +1,6 @@
 import { Box, Flex, IconButton, RadioCards, ScrollArea, Text } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
-import { requestGetDailyMeal } from "../api";
+import { requestGetDailyMeal, requestInferenceCalorie } from "../api";
 import { Meal } from "../types";
 import MealInfo from "./MealInfo";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
@@ -98,7 +98,7 @@ const MealPage = () => {
     setIsCalorieLoading(true);
     setCalorieError(null);
 
-    const data = await requestimageasync(selectedMeal.meal_id, selectedImage);
+    const data = await requestInferenceCalorie(selectedMeal.meal_id, selectedImage);
 
     if (data) {
       setCalorieData(data);
@@ -218,10 +218,8 @@ const MealPage = () => {
                   </Flex>
                 </RadioCards.Root>
               </ScrollArea>
-
               <Comment meal={selectedMeal} contentWidthStyle={contentWidthStyle} />
             </Flex >
-
           )}
         </Box>
 
