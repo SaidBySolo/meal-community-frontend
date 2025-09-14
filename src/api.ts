@@ -2,6 +2,7 @@ import { GetDailyMealDTO } from "./dtos/meal";
 import { CreateUserDTO } from "./dtos/user";
 import { CreateCommentDTO, GetCommentDTO } from "./dtos/comment";
 import { CalorieData } from "./dtos/calorie";
+import { Timetable } from "./dtos/timetable";
 
 export const API_URL = "http://localhost:8000"
 
@@ -192,7 +193,13 @@ const requestWeeklyTimetable = async (date: string) => {
     body: JSON.stringify({ date }),
     credentials: "include",
   });
-  return response;
+  if (response.ok) {
+    const result = await response.json();
+
+    return result.results as [Timetable[]]
+  }
+  return []
+
 };
 
 export {

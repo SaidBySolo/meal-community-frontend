@@ -1,5 +1,6 @@
 import { Box, Tabs, Text } from "@radix-ui/themes";
 import MealPage from "./MealPage";
+import TimetablePage from "./TimetablePage";
 
 const CombinedPage = () => {
   return (
@@ -21,7 +22,7 @@ const CombinedPage = () => {
         </Tabs.Content>
 
         <Tabs.Content value="timetable">
-          <Text size="2">시간표를 확인하세요.</Text>
+          <TimetablePage />
         </Tabs.Content>
       </Box>
     </Tabs.Root>
