@@ -96,7 +96,7 @@ const Header = () => {
         {isLoggedIn && (
           <DropdownMenu.Root>
             <DropdownMenu.Trigger>
-              <Button variant="soft" color="gray">
+              <Button variant="soft" color="gray" style={{zIndex:3}}>
                 <Flex align="center" gap="2">
                   <PersonIcon />
                   <Box display={{ initial: "none", sm: "block" }}>
@@ -106,11 +106,7 @@ const Header = () => {
               </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
-              <DropdownMenu.Item style={
-                {
-                  zIndex: 3,
-                }
-              } onClick={() => setIsInfoDialogOpen(true)}>
+              <DropdownMenu.Item onClick={() => setIsInfoDialogOpen(true)}>
                 <Flex align="center" gap="2">
                   <PersonIcon />
                   <Text size="2">내 정보</Text>
