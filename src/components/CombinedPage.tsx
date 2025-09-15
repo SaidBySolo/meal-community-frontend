@@ -9,7 +9,7 @@ const CombinedPage = () => (
       justifyContent: "center",
       position: "relative",
       top: "-40px",
-      zIndex: 5000,
+      zIndex: 2,
     }}>
       <Tabs.Trigger value="meal">급식</Tabs.Trigger>
       <Tabs.Trigger value="timetable">시간표</Tabs.Trigger>

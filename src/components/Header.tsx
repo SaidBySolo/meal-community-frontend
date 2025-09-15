@@ -68,7 +68,7 @@ const Header = () => {
           backgroundColor: "var(--color-background)",
           position: "sticky",
           top: 0,
-          zIndex: 1000,
+          zIndex: 1,
           width: "100%",
         }}
       >
@@ -106,7 +106,11 @@ const Header = () => {
               </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
-              <DropdownMenu.Item onClick={() => setIsInfoDialogOpen(true)}>
+              <DropdownMenu.Item style={
+                {
+                  zIndex: 3,
+                }
+              } onClick={() => setIsInfoDialogOpen(true)}>
                 <Flex align="center" gap="2">
                   <PersonIcon />
                   <Text size="2">내 정보</Text>
