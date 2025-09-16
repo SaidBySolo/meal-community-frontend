@@ -66,7 +66,6 @@ const Header = () => {
         px="4"
         style={{
           backgroundColor: "var(--color-background)",
-          position: "sticky",
           top: 0,
           zIndex: 1,
           width: "100%",
@@ -96,7 +95,7 @@ const Header = () => {
         {isLoggedIn && (
           <DropdownMenu.Root>
             <DropdownMenu.Trigger>
-              <Button variant="soft" color="gray" style={{zIndex:3}}>
+              <Button variant="soft" color="gray" style={{ zIndex: 3 }}>
                 <Flex align="center" gap="2">
                   <PersonIcon />
                   <Box display={{ initial: "none", sm: "block" }}>
