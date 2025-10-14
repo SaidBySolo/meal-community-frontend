@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import {
   Avatar,
   Box,
@@ -10,6 +11,9 @@ import {
   Text,
   TextArea,
 } from "@radix-ui/themes";
+=======
+import { Box, Button, Flex, Grid, IconButton, RadioCards, ScrollArea, Text } from "@radix-ui/themes";
+>>>>>>> Stashed changes
 import { useEffect, useRef, useState } from "react";
 import { requestGetDailyMeal } from "../api";
 import { Meal } from "../types";
@@ -30,7 +34,14 @@ const MealPage = () => {
   const [commentInput, setCommentInput] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   const isLoadingRef = useRef(false);
+=======
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [calendarViewDate, setCalendarViewDate] = useState(new Date());
+
+  const calendarRef = useRef<HTMLDivElement>(null);
+>>>>>>> Stashed changes
 
   const [comments, setComments] = useState<{
     [key: string]: Array<{
@@ -141,12 +152,18 @@ const MealPage = () => {
 >>>>>>> Stashed changes
   };
 
+  const handleDateSelectFromCalendar = (date: Date) => {
+    setSelectedDate(date);
+    setIsCalendarOpen(false);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       if (isLoadingRef.current) return; // 이미 로딩 중이면 요청 방지
       isLoadingRef.current = true;
 
       setIsLoading(true);
+<<<<<<< Updated upstream
 
       const response = await requestGetDailyMeal({
         date: formatDate(selectedDate),
@@ -156,14 +173,21 @@ const MealPage = () => {
         console.error("Failed to fetch meals");
         setMeals([]);
         setHasMeal(false);
+=======
+      const response = await requestGetDailyMeal({ date: formatDate(selectedDate) });
+      if (!response.ok) {
+        console.error("Failed to fetch meals");
+        setMeals([]);
+        setSelectedMeal(null);
+>>>>>>> Stashed changes
         setIsLoading(false);
         isLoadingRef.current = false; // 로딩 상태 초기화
         return;
       }
-
       const result = await response.json();
       const mealResults = result.results as Meal[];
       setMeals(mealResults);
+<<<<<<< Updated upstream
       setHasMeal(mealResults.length > 0);
 
       if (mealResults.length > 0) {
@@ -172,24 +196,103 @@ const MealPage = () => {
         setSelectedMealType(lunchMeal ? lunchMeal.name : mealResults[0].name);
 =======
         const firstMeal = mealResults.filter((meal) => meal.name == "중식")[0];
+=======
+      if (mealResults.length > 0) {
+        const firstMeal = mealResults.find(meal => meal.name === "중식") || mealResults[0];
+>>>>>>> Stashed changes
         setSelectedMeal(firstMeal);
 >>>>>>> Stashed changes
       } else {
         setSelectedMealType("");
       }
-
       setIsLoading(false);
       isLoadingRef.current = false; // 로딩 상태 초기화
     };
-
     fetchData();
   }, [selectedDate]);
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
   // 현재 선택된 식사 유형의 댓글만 필터링
   const currentComments = selectedMealType
     ? comments[selectedMealType] || []
     : [];
 =======
+>>>>>>> Stashed changes
+=======
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
+        setIsCalendarOpen(false);
+      }
+    };
+    if (isCalendarOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isCalendarOpen]);
+
+
+  const renderCalendar = () => {
+    const year = calendarViewDate.getFullYear();
+    const month = calendarViewDate.getMonth();
+    const firstDayOfMonth = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+    const emptyDays = Array.from({ length: firstDayOfMonth });
+    const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+
+    return (
+      <Box
+        ref={calendarRef}
+        p="3"
+        style={{
+          position: "absolute",
+          top: "100%",
+          left: "50%",
+          transform: "translateX(-50%)",
+          backgroundColor: "var(--color-background)",
+          border: "1px solid var(--gray-a5)",
+          borderRadius: "var(--radius-3)",
+          maxWidth: 320,
+          zIndex: 10,
+          marginTop: "4px"
+        }}
+      >
+        <Flex justify="between" align="center" mb="3">
+          <IconButton size="1" variant="ghost" onClick={() => setCalendarViewDate(new Date(year, month - 1, 1))}>
+            <ChevronLeftIcon />
+          </IconButton>
+          <Text weight="bold">{`${year}년 ${month + 1}월`}</Text>
+          <IconButton size="1" variant="ghost" onClick={() => setCalendarViewDate(new Date(year, month + 1, 1))}>
+            <ChevronRightIcon />
+          </IconButton>
+        </Flex>
+        <Grid columns="7" gap="2" style={{ textAlign: "center" }}>
+          {dayNames.map(day => <Text key={day} size="1" weight="medium" color="gray">{day}</Text>)}
+          {emptyDays.map((_, i) => <Box key={`empty-${i}`} />)}
+          {days.map(day => {
+            const date = new Date(year, month, day);
+            const isSelected = selectedDate.toDateString() === date.toDateString();
+            return (
+              <IconButton
+                key={day}
+                variant={isSelected ? "solid" : "soft"}
+                color={isSelected ? "blue" : "gray"}
+                onClick={() => handleDateSelectFromCalendar(date)}
+                style={{ borderRadius: "100%", width: 35, height: 35 }}
+              >
+                {day}
+              </IconButton>
+            );
+          })}
+        </Grid>
+      </Box>
+    );
+  };
+
 >>>>>>> Stashed changes
 
   // 컨텐츠 영역 공통 너비 스타일
@@ -220,6 +323,7 @@ const MealPage = () => {
         justify="center"
         style={contentWidthStyle}
       >
+<<<<<<< Updated upstream
         <IconButton
           variant="soft"
           onClick={() => moveDate(-1)}
@@ -248,6 +352,43 @@ const MealPage = () => {
           <ChevronRightIcon />
         </IconButton>
       </Flex>
+=======
+        <Flex
+          align="center"
+          gap="2"
+          mb="2"
+          justify="center"
+          style={{ ...contentWidthStyle, position: "relative" }}
+        >
+          <IconButton
+            variant="soft"
+            onClick={() => moveDate(-1)}
+            aria-label="이전 날짜"
+            disabled={isLoading}
+          >
+            <ChevronLeftIcon />
+          </IconButton>
+          <Box style={{ flex: "1", textAlign: "center" }}>
+            <Button variant="ghost" onClick={() => {
+              setCalendarViewDate(selectedDate);
+              setIsCalendarOpen(!isCalendarOpen);
+            }}>
+              <Text weight="bold" size={{ initial: "3", sm: "5" }}>
+                {getDisplayDate(selectedDate)}
+              </Text>
+            </Button>
+            {isCalendarOpen && renderCalendar()}
+          </Box>
+          <IconButton
+            variant="soft"
+            onClick={() => moveDate(1)}
+            aria-label="다음 날짜"
+            disabled={isLoading}
+          >
+            <ChevronRightIcon />
+          </IconButton>
+        </Flex>
+>>>>>>> Stashed changes
 
       {/* 급식 정보 표시 */}
       <Box width="100%" style={contentWidthStyle}>
@@ -323,6 +464,7 @@ const MealPage = () => {
                 총 {currentComments.length}개의 댓글
               </Text>
             </Flex>
+<<<<<<< Updated upstream
 
             {/* 댓글 목록 */}
             <ScrollArea style={{ flex: 1 }}>
@@ -366,6 +508,25 @@ const MealPage = () => {
                     </Card>
                   ))
                 ) : (
+=======
+          ) : meals.length === 0 ? (
+            <Flex
+              align="center"
+              justify="center"
+              direction="column"
+              gap="3"
+              py="6">
+              <Text size={{ initial: "3", sm: "5" }} weight="medium" color="gray">급식 정보가 없습니다</Text>
+              <Text size="2" color="gray">해당 날짜에 등록된 급식 정보가 없거나 주말입니다</Text>
+            </Flex>
+          ) : (
+            <Flex direction="column" style={{ width: "100%", overflowX: "auto" }}>
+              <ScrollArea>
+                <RadioCards.Root
+                  defaultValue={meals[0]?.name}
+                  onValueChange={(name) => handleSelectMeal(name)}
+                >
+>>>>>>> Stashed changes
                   <Flex
                     align="center"
                     justify="center"
