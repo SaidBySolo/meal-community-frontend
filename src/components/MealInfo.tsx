@@ -16,8 +16,6 @@ const MealInfo = ({ meal, onSelectMeal }: MealInfoProps) => {
   const [openCalorieDialog, setOpenCalorieDialog] = useState(false);
   const [calorieData, setCalorieData] = useState<CalorieData | null>(null);
 
-
-
   const handleSelect = () => {
     if (onSelectMeal) {
       onSelectMeal(meal.name);
@@ -27,7 +25,7 @@ const MealInfo = ({ meal, onSelectMeal }: MealInfoProps) => {
   const handleCalorieSubmit = async (image: File) => {
     setIsCalorieLoading(true);
     setOpenCalorieDialog(true);
-    
+
     const data = await requestInferenceCalorie(meal.meal_id, image);
     if (data) {
       setCalorieData(data);
@@ -36,7 +34,6 @@ const MealInfo = ({ meal, onSelectMeal }: MealInfoProps) => {
     }
     setIsCalorieLoading(false);
   };
-
 
   return (
     <>
@@ -58,23 +55,25 @@ const MealInfo = ({ meal, onSelectMeal }: MealInfoProps) => {
           boxSizing: "border-box",
           overflow: "hidden",
           display: "flex",
-          flexDirection: "column"
+          flexDirection: "column",
         }}
       >
         <Flex direction="column" style={{ height: "100%", width: "100%" }}>
           {/* 식사 유형 헤더 */}
-          <Box style={{
-            padding: "0.5rem",
-            borderBottom: "1px solid var(--gray-5)",
-            backgroundColor: "var(--gray-2)",
-            borderRadius: "0.25rem"
-          }}>
+          <Box
+            style={{
+              padding: "0.5rem",
+              borderBottom: "1px solid var(--gray-5)",
+              backgroundColor: "var(--gray-2)",
+              borderRadius: "0.25rem",
+            }}
+          >
             <Text
               weight="bold"
               size={{ initial: "3", sm: "4" }}
               style={{
                 textAlign: "center",
-                color: "var(--gray-12)"
+                color: "var(--gray-12)",
               }}
             >
               {meal.name}
@@ -82,22 +81,27 @@ const MealInfo = ({ meal, onSelectMeal }: MealInfoProps) => {
           </Box>
 
           {/* 메뉴 목록 - 내부 레이아웃 꽉 차게 수정 */}
-          <Box style={{
-            flex: 1,
-            overflowY: "auto",
-            padding: "0.5rem 0",
-            display: "flex",
-            flexDirection: "column",
-            pointerEvents: "auto",
-          }}>
+          <Box
+            style={{
+              flex: 1,
+              overflowY: "auto",
+              padding: "0.5rem 0",
+              display: "flex",
+              flexDirection: "column",
+              pointerEvents: "auto",
+            }}
+          >
             {meal.dish_name.split("<br/>").map((dish, idx) => (
               <Flex
                 key={idx}
                 align="start"
                 style={{
                   padding: "0.25rem 0.5rem",
-                  borderBottom: idx < meal.dish_name.split("<br/>").length - 1 ? "1px dashed var(--gray-4)" : "none",
-                  width: "100%"
+                  borderBottom:
+                    idx < meal.dish_name.split("<br/>").length - 1
+                      ? "1px dashed var(--gray-4)"
+                      : "none",
+                  width: "100%",
                 }}
               >
                 <Text
@@ -107,7 +111,7 @@ const MealInfo = ({ meal, onSelectMeal }: MealInfoProps) => {
                     wordBreak: "break-word",
                     width: "100%",
                     display: "block",
-                    padding: "0"
+                    padding: "0",
                   }}
                 >
                   {dish.trim()}
@@ -134,7 +138,7 @@ const MealInfo = ({ meal, onSelectMeal }: MealInfoProps) => {
                 size="1"
                 color="gray"
                 style={{
-                  textAlign: "right"
+                  textAlign: "right",
                 }}
               >
                 칼로리: {meal.calorie || "정보 없음"}

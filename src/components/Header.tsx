@@ -1,11 +1,4 @@
-import {
-  Box,
-  Button,
-  DropdownMenu,
-  Flex,
-
-  Text,
-} from "@radix-ui/themes";
+import { Box, Button, DropdownMenu, Flex, Text } from "@radix-ui/themes";
 import { ExitIcon, PersonIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import { requestLogout, requestMe } from "../api";
@@ -36,7 +29,7 @@ const Header = () => {
       try {
         const response = await requestMe();
         if (response.ok) {
-          const data = await response.json() as User;
+          const data = (await response.json()) as User;
           setUser(data);
         } else {
           console.error("사용자 정보 가져오기 실패");
@@ -44,21 +37,24 @@ const Header = () => {
       } catch (error) {
         console.error("사용자 정보 요청 중 오류 발생:", error);
       }
-    }
+    };
     // 로그인 상태 확인
     const token = localStorage.getItem("access_token");
     if (token) {
       setIsLoggedIn(true);
-      fetchUserInfo()
+      fetchUserInfo();
     } else {
       setIsLoggedIn(false);
     }
   }, []);
 
-
   return (
     <>
-      <UserInfoDialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen} user={user} />
+      <UserInfoDialog
+        open={isInfoDialogOpen}
+        onOpenChange={setIsInfoDialogOpen}
+        user={user}
+      />
       <Flex
         height="4.5rem"
         align="center"
@@ -84,7 +80,7 @@ const Header = () => {
               }}
             />
             <Box display={{ initial: "none", sm: "block" }}>
-              <Text weight="bold" size="4" style={{ color: "#FF6B6B" }} >
+              <Text weight="bold" size="4" style={{ color: "#FF6B6B" }}>
                 오늘의 급식
               </Text>
             </Box>
@@ -110,7 +106,7 @@ const Header = () => {
                   <PersonIcon />
                   <Text size="2">내 정보</Text>
                 </Flex>
-              </DropdownMenu.Item >
+              </DropdownMenu.Item>
               <DropdownMenu.Separator />
               <DropdownMenu.Item color="red" onClick={handleLogout}>
                 <Flex align="center" gap="2">
@@ -121,10 +117,8 @@ const Header = () => {
             </DropdownMenu.Content>
           </DropdownMenu.Root>
         )}
-
-      </Flex >
+      </Flex>
     </>
-
   );
 };
 

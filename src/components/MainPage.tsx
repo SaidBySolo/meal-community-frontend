@@ -23,14 +23,13 @@ const MainPage = () => {
             setIsLogin(true);
           }
         }
-      }
+      };
       checkToken();
     }
     return () => {
       effectRan.current = true;
-    }
-  }, [])
-
+    };
+  }, []);
 
   return (
     <Box
@@ -39,24 +38,25 @@ const MainPage = () => {
       }}
     >
       <Header />
-      {
-        isLogin ? <CombinedPage /> :
-          <Flex
-            direction="column"
-            align="center"
-            justify="center"
-            style={{
-              height: '100%',
-            }}
-          >
-            <img src="./meal.png" alt="meal" width={300} height={300} />
-            <h1>오늘의 급식은?</h1>
+      {isLogin ? (
+        <CombinedPage />
+      ) : (
+        <Flex
+          direction="column"
+          align="center"
+          justify="center"
+          style={{
+            height: "100%",
+          }}
+        >
+          <img src="./meal.png" alt="meal" width={300} height={300} />
+          <h1>오늘의 급식은?</h1>
 
-            <CombinedDialogs />
-          </Flex>
-      }
+          <CombinedDialogs />
+        </Flex>
+      )}
     </Box>
-  )
-}
+  );
+};
 
 export default MainPage;
