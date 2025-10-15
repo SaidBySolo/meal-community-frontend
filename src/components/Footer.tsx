@@ -1,26 +1,26 @@
-import { Button, Flex } from "@radix-ui/themes";
-import { CameraIcon } from "@radix-ui/react-icons";
+import { Box, Button, Flex } from "@radix-ui/themes";
 
 const Footer = () => {
   return (
-    <div style={{ width: "100%", backgroundColor: "blue" }}>
+    <Box
+      style={{
+        height: "5rem",
+      }}
+    >
       <Flex
         direction="row"
         align="center"
         justify="center"
         style={{
-          marginTop: "auto",
-          margin: "0",
-          padding: "0",
-          width: "100%",
-          position: "relative",
+          height: "100%",
         }}
       >
-        <Button radius="full" style={{ cursor: "pointer" }}>
-          <CameraIcon />
-        </Button>
+        <Button></Button>
+        <Button></Button>
+        <Button></Button>
+        <Button></Button>
       </Flex>
-    </div>
+    </Box>
   );
 };
 

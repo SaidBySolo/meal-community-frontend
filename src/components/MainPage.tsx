@@ -1,62 +1,28 @@
 import { Box, Flex } from "@radix-ui/themes";
 
 import CombinedDialogs from "./CombinedDialogs";
-import MealPage from "./MealPage";
 import { useEffect, useRef, useState } from "react";
 import { requestCheckToken, requestRefresh } from "../api";
+import Header from "./Header";
+import CombinedPage from "./CombinedPage";
 
 const MainPage = () => {
-    const [isLogin, setIsLogin] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
 
-    const effectRan = useRef(false);
+  const effectRan = useRef(false);
 
-    useEffect(() => {
-        if (effectRan.current === false) {
-            const checkToken = async () => {
-                const isTokenValid = await requestCheckToken();
-                if (isTokenValid) {
-                    setIsLogin(true);
-                } else {
-                    const isRefreshSuccess = await requestRefresh();
-                    if (isRefreshSuccess) {
-                        setIsLogin(true);
-                    }
-                }
-            }
-            checkToken();
+  useEffect(() => {
+    if (effectRan.current === false) {
+      const checkToken = async () => {
+        const isTokenValid = await requestCheckToken();
+        if (isTokenValid) {
+          setIsLogin(true);
+        } else {
+          const isRefreshSuccess = await requestRefresh();
+          if (isRefreshSuccess) {
+            setIsLogin(true);
+          }
         }
-<<<<<<< Updated upstream
-        return () => {
-            effectRan.current = true;
-        }
-    }, [])
-
-    return (
-        <Box
-            style={{
-                height: "100vh",
-            }}
-        >
-            {
-                isLogin ? <MealPage /> :
-                    <Flex
-                        direction="column"
-                        align="center"
-                        justify="center"
-                        style={{
-                            height: '100%',
-                        }}
-                    >
-                        <img src="./public/meal.png" alt="meal" width={300} height={300} />
-                        <h1>오늘의 급식은?</h1>
-
-                        <CombinedDialogs />
-                    </Flex>
-            }
-        </Box>
-    )
-}
-=======
       };
       checkToken();
     }
@@ -73,7 +39,7 @@ const MainPage = () => {
     >
       <Header />
       {isLogin ? (
-        <MealPage />
+        <CombinedPage />
       ) : (
         <Flex
           direction="column"
@@ -83,18 +49,7 @@ const MainPage = () => {
             height: "100%",
           }}
         >
-          <img
-            src="./public/meal.png"
-            alt="meal"
-            style={{
-              width: "40%",
-              maxWidth: "300px",
-              height: "auto",
-              maxHeight: "300px",
-              marginTop: "1rem",
-              marginBottom: "50px",
-            }}
-          />
+          <img src="./meal.png" alt="meal" width={300} height={300} />
           <h1>오늘의 급식은?</h1>
 
           <CombinedDialogs />
@@ -103,6 +58,5 @@ const MainPage = () => {
     </Box>
   );
 };
->>>>>>> Stashed changes
 
 export default MainPage;
